@@ -1,0 +1,5 @@
+---
+name: pegacorn-fhirplace-api
+version: 1.0.0-SNAPSHOT
+description: Fhirplace Information Manager API
+icon: img/icons/camel.svg

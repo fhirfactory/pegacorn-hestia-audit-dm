@@ -1,0 +1,26 @@
+<web-app version="4.0" xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_4_0.xsd">
+
+    <servlet>
+        <servlet-name>CamelServlet</servlet-name>
+        <servlet-class></servlet-class>
+        <display-name>Camel Http Transport Servlet</display-name>
+        <servlet-class>org.apache.camel.component.servlet.CamelHttpTransportServlet</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>CamelServlet</servlet-name>
+        <url-pattern>/camel/*</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>fhirServlet</servlet-name>
+        <servlet-class>au.gov.act.hd.aether.fhirplace.im.SimpleRestfulServer</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>fhirServlet</servlet-name>
+        <url-pattern>/fhir/*</url-pattern>
+    </servlet-mapping>
+</web-app>
