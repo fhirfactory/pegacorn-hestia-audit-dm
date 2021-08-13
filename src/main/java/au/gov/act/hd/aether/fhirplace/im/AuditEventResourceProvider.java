@@ -22,7 +22,6 @@ import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.client.TableDescriptor;
 import org.apache.hadoop.hbase.client.TableDescriptorBuilder;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.instance.model.api.IDomainResource;
 import org.hl7.fhir.r4.model.AuditEvent;
 import org.hl7.fhir.r4.model.AuditEvent.AuditEventAgentComponent;
@@ -37,11 +36,10 @@ import ca.uhn.fhir.rest.annotation.IdParam;
 import ca.uhn.fhir.rest.annotation.Read;
 import ca.uhn.fhir.rest.annotation.ResourceParam;
 import ca.uhn.fhir.rest.api.MethodOutcome;
-import ca.uhn.fhir.rest.server.IResourceProvider;
 import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 
 @ApplicationScoped
-public class AuditEventResourceProvider extends BaseResourceProvider implements IResourceProvider {
+public class AuditEventResourceProvider extends BaseResourceProvider {
     private static final Logger LOG = LoggerFactory.getLogger(AuditEventResourceProvider.class);
 
     private static final TableName TABLE_NAME = TableName.valueOf("AUDIT_EVENT");
@@ -63,11 +61,6 @@ public class AuditEventResourceProvider extends BaseResourceProvider implements 
      */
     public AuditEventResourceProvider() {
 
-    }
-
-    @Override
-    public Class<? extends IBaseResource> getResourceType() {
-        return AuditEvent.class;
     }
 
     @Read()
