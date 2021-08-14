@@ -229,5 +229,23 @@ public class AuditEventResourceProvider extends BaseResourceProvider {
         }
     }
 
+    @Override
+    protected void configureManagedRoutes() {
+        rest().get("/AuditEvent/{id}")
+        .produces("application/json")
+        .to("direct:storeRequest");
+        
+        rest().post("/AuditEvent")
+        .consumes("application/json")
+        .produces("application/json")
+        .to("direct:storeRequest");
+
+    }
+
+    @Override
+    protected Logger getLogger() {
+        return LOG;
+    }
+
 
 }

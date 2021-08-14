@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 
-public abstract class BaseResourceProvider {
+public abstract class BaseResourceProvider extends RouteBuilderCommonBase {
     private static final Logger LOG = LoggerFactory.getLogger(BaseResourceProvider.class);
 
     protected static Connection connection = null;
