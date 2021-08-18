@@ -1,4 +1,25 @@
-package au.gov.act.hd.aether.fhirplace.im;
+/*
+ * Copyright (c) 2021 Kelly Skye
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package net.fhirfactory.pegacorn.hestia.audit.im;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,8 +60,8 @@ import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 
 @ApplicationScoped
-public class AuditEventResourceProvider extends BaseResourceProvider {
-    private static final Logger LOG = LoggerFactory.getLogger(AuditEventResourceProvider.class);
+public class AuditEventProxy extends BaseResourceProvider {
+    private static final Logger LOG = LoggerFactory.getLogger(AuditEventProxy.class);
 
     private static final TableName TABLE_NAME = TableName.valueOf("AUDIT_EVENT");
     private static final byte[] CF1 = Bytes.toBytes("INFO");
@@ -59,7 +80,7 @@ public class AuditEventResourceProvider extends BaseResourceProvider {
     /**
      * Constructor
      */
-    public AuditEventResourceProvider() {
+    public AuditEventProxy() {
 
     }
 
@@ -233,7 +254,11 @@ public class AuditEventResourceProvider extends BaseResourceProvider {
     protected void configureManagedRoutes() {
         rest().get("/AuditEvent/{id}")
         .produces("application/json")
-        .to("direct:storeRequest");
+        .to("direct:getRequest");
+        
+        from("direct:getRequest")
+        .bean(AuditEvent.class)
+        .bean(AuditEventProxy.class, "read");
         
         rest().post("/AuditEvent")
         .consumes("application/json")

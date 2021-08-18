@@ -1,4 +1,4 @@
-package au.gov.act.hd.aether.fhirplace.im;
+package net.fhirfactory.pegacorn.hestia.audit.im;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.RouteDefinition;
