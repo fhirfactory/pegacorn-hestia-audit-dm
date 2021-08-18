@@ -1,4 +1,4 @@
-package net.fhirfactory.pegacorn.hestia.audit.im;
+package net.fhirfactory.pegacorn.hestia.audit.dm;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.RouteDefinition;

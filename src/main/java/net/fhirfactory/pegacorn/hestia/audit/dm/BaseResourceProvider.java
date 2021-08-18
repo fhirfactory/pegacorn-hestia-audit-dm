@@ -1,4 +1,4 @@
-package net.fhirfactory.pegacorn.hestia.audit.im;
+package net.fhirfactory.pegacorn.hestia.audit.dm;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
