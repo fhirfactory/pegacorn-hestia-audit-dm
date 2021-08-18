@@ -254,7 +254,6 @@ public class AuditEventProxy extends BaseResourceProvider {
 
     @Override
     public Class<? extends IBaseResource> getResourceType() {
-        // TODO Auto-generated method stub
         return AuditEvent.class;
     }
 
