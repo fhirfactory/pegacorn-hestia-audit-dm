@@ -22,9 +22,8 @@ import org.slf4j.LoggerFactory;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.rest.server.IResourceProvider;
-import net.fhirfactory.pegacorn.ladon.edge.answer.resourceproxies.common.LadonEdgeSynchronousCRUDResourceBase;
 
-public abstract class BaseResourceProvider  extends LadonEdgeSynchronousCRUDResourceBase implements IResourceProvider {
+public abstract class BaseResourceProvider implements IResourceProvider {
     private static final Logger LOG = LoggerFactory.getLogger(BaseResourceProvider.class);
 
     protected static Connection connection = null;

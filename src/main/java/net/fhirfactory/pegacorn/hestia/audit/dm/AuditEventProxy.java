@@ -43,6 +43,7 @@ import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.client.TableDescriptor;
 import org.apache.hadoop.hbase.client.TableDescriptorBuilder;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.instance.model.api.IDomainResource;
 import org.hl7.fhir.r4.model.AuditEvent;
 import org.hl7.fhir.r4.model.AuditEvent.AuditEventAgentComponent;
@@ -250,26 +251,11 @@ public class AuditEventProxy extends BaseResourceProvider {
         }
     }
 
-    @Override
-    protected void configureManagedRoutes() {
-        rest().get("/AuditEvent/{id}")
-        .produces("application/json")
-        .to("direct:getRequest");
-        
-        from("direct:getRequest")
-        .bean(AuditEvent.class)
-        .bean(AuditEventProxy.class, "read");
-        
-        rest().post("/AuditEvent")
-        .consumes("application/json")
-        .produces("application/json")
-        .to("direct:storeRequest");
-
-    }
 
     @Override
-    protected Logger getLogger() {
-        return LOG;
+    public Class<? extends IBaseResource> getResourceType() {
+        // TODO Auto-generated method stub
+        return AuditEvent.class;
     }
 
 

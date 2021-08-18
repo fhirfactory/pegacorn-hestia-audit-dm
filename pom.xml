@@ -235,7 +235,7 @@
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>hapi-fhir-base</artifactId>
-            <version>${version-ca.uhn.hapi.fhir}</version>
+            <version>${hapifhir_version}</version>
             <scope>compile</scope>
         </dependency>
 
@@ -243,7 +243,7 @@
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>hapi-fhir-server</artifactId>
-            <version>${version-ca.uhn.hapi.fhir}</version>
+            <version>${hapifhir_version}</version>
             <scope>compile</scope>
         </dependency>
 
@@ -251,7 +251,7 @@
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>hapi-fhir-structures-r4</artifactId>
-            <version>${version-ca.uhn.hapi.fhir}</version>
+            <version>${hapifhir_version}</version>
             <scope>compile</scope>
         </dependency>
 		
