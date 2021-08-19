@@ -118,6 +118,7 @@ public class AuditEventProxy extends AuditBaseProxy {
         long time = Calendar.getInstance().getTimeInMillis();
 //        for(int i = 0; i < 1000; i++) {
   
+        //TODO figure out how to get event ID
         theEvent.setId("Audit-" + nextId++);
             LOG.info("AuditEvent registered. ID: " + theEvent.getId());
   
@@ -141,7 +142,16 @@ public class AuditEventProxy extends AuditBaseProxy {
     @Update()
     public MethodOutcome updateEvent(@ResourceParam AuditEvent theEvent) {
         LOG.debug(".updateEvent(): Entry, theEvent (AuditEvent) --> {}", theEvent);
-        throw (new UnsupportedOperationException("updateEvent() is not supported"));
+        
+        try {
+            saveToDatabase(theEvent);
+//           writeToFileSystem(fileName, parsedResource);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new MethodOutcome().setId(theEvent.getIdElement());
+
 
     }
 
