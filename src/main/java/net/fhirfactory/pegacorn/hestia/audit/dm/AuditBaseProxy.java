@@ -5,15 +5,15 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 
+import javax.inject.Inject;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.MasterNotRunningException;
 import org.apache.hadoop.hbase.ZooKeeperConnectionException;
 import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.instance.model.api.IDomainResource;
 import org.slf4j.Logger;
@@ -23,25 +23,16 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.rest.server.IResourceProvider;
 
-public abstract class BaseResourceProvider implements IResourceProvider {
-    private static final Logger LOG = LoggerFactory.getLogger(BaseResourceProvider.class);
 
-    protected static Connection connection = null;
+public abstract class AuditBaseProxy implements IResourceProvider {
+    private static final Logger LOG = LoggerFactory.getLogger(AuditBaseProxy.class);
     
-   
+    @Inject
+    private HBaseConnector connector;
     
+    //TODO Note this will eventually have an enum for when the server is down
     protected Connection getConnection() throws MasterNotRunningException, ZooKeeperConnectionException, IOException {
-        if(connection == null) {
-            LOG.info("No configuration found. Creating a new one");
-            Configuration config = HBaseConfiguration.create();
-
-            String zooKeeperIP = (System.getenv("ZOOKEEPER_CLUSTER_IP"));
-            config.set("hbase.zookeeper.quorum", zooKeeperIP);
-            config.set("hbase.zookeeper.property.clientPort", "2181");
-
-            connection = ConnectionFactory.createConnection(config);
-        }
-        return connection;
+        return connector.getConnection();
     }
     
     protected abstract void saveToDatabase(IDomainResource resouce) throws Exception;

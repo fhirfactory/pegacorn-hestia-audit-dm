@@ -54,14 +54,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ca.uhn.fhir.rest.annotation.Create;
+import ca.uhn.fhir.rest.annotation.Delete;
 import ca.uhn.fhir.rest.annotation.IdParam;
 import ca.uhn.fhir.rest.annotation.Read;
 import ca.uhn.fhir.rest.annotation.ResourceParam;
+import ca.uhn.fhir.rest.annotation.Update;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 
 @ApplicationScoped
-public class AuditEventProxy extends BaseResourceProvider {
+public class AuditEventProxy extends AuditBaseProxy {
     private static final Logger LOG = LoggerFactory.getLogger(AuditEventProxy.class);
 
     private static final TableName TABLE_NAME = TableName.valueOf("AUDIT_EVENT");
@@ -102,7 +104,7 @@ public class AuditEventProxy extends BaseResourceProvider {
             AuditEvent audit = (AuditEvent) parseResourceFromJsonString(json);
             
             return audit;
-        } catch (IOException e) {
+        } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
             throw new ResourceNotFoundException(theId);
@@ -134,6 +136,19 @@ public class AuditEventProxy extends BaseResourceProvider {
         LOG.info("Total time for 1 record (msec): " + totalTime );
         
         return new MethodOutcome().setId(theEvent.getIdElement());
+    }
+    
+    @Update()
+    public MethodOutcome updateEvent(@ResourceParam AuditEvent theEvent) {
+        LOG.debug(".updateEvent(): Entry, theEvent (AuditEvent) --> {}", theEvent);
+        throw (new UnsupportedOperationException("updateEvent() is not supported"));
+
+    }
+
+    @Delete()
+    public MethodOutcome deleteEvent(@IdParam IdType resourceId) {
+        LOG.debug(".deleteEvent(): Entry, resourceId (IdType) --> {}", resourceId);
+        throw (new UnsupportedOperationException("deleteEvent() is not supported"));
     }
 
 
