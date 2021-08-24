@@ -29,6 +29,8 @@ public abstract class AuditBaseProxy implements IResourceProvider {
     
     @Inject
     private HBaseConnector connector;
+    FhirContext ctx = FhirContext.forR4();
+    
     
     //TODO Note this will eventually have an enum for when the server is down
     protected Connection getConnection() throws MasterNotRunningException, ZooKeeperConnectionException, IOException {
@@ -59,8 +61,6 @@ public abstract class AuditBaseProxy implements IResourceProvider {
     
     
     protected String parseResourceToJsonString(IDomainResource resource) {
-        FhirContext ctx = FhirContext.forR4();
-
         IParser parser = ctx.newJsonParser();
         String parsedResource = parser.encodeResourceToString(resource);
         
@@ -68,8 +68,6 @@ public abstract class AuditBaseProxy implements IResourceProvider {
     }
     
     protected IBaseResource parseResourceFromJsonString(String json) {
-        FhirContext ctx = FhirContext.forR4();
-
         IParser parser = ctx.newJsonParser();
         IBaseResource parsedResource = parser.parseResource(json);
         
