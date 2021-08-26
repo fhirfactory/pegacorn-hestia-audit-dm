@@ -2,6 +2,7 @@ package net.fhirfactory.pegacorn.hestia.audit.dm;
 
 import java.io.IOException;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 
 import org.apache.hadoop.conf.Configuration;
@@ -19,9 +20,23 @@ public class HBaseConnector {
 
     protected static Connection connection = null;
     
-   
+    @PostConstruct
+   public void setup() {
+       try {
+        getConnection();
+    } catch (MasterNotRunningException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    } catch (ZooKeeperConnectionException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    }
+   }
     
-    public Connection getConnection() throws MasterNotRunningException, ZooKeeperConnectionException, IOException {
+    Connection getConnection() throws MasterNotRunningException, ZooKeeperConnectionException, IOException {
         if(connection == null) {
             LOG.info("No configuration found. Creating a new one");
             Configuration config = HBaseConfiguration.create();
