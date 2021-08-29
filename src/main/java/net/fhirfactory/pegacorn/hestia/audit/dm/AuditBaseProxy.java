@@ -6,6 +6,7 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -61,7 +62,7 @@ public abstract class AuditBaseProxy implements IResourceProvider {
         return connector.getConnection();
     }
 
-    protected abstract StoreAuditOutcomeEnum saveToDatabase(IDomainResource resouce) throws Exception;
+//    protected abstract StoreAuditOutcomeEnum saveToDatabase(IDomainResource resouce) throws Exception;
 
     protected void writeToFileSystem(String fileName, String json) throws IOException {
         Configuration configuration = new Configuration();
@@ -182,8 +183,19 @@ public abstract class AuditBaseProxy implements IResourceProvider {
         save(row);
         LOG.debug("Save successful. Id: " + Bytes.toString(row.getRow()));
         table.close();
-
     }
+
+    protected void save(List<Put> rows) throws MasterNotRunningException, ZooKeeperConnectionException, IOException {
+        if (!getConnection().getAdmin().tableExists(TABLE_NAME)) {
+            createTable();
+        }
+        Table table = getConnection().getTable(TABLE_NAME);
+        table.put(rows);
+        save(rows);
+        LOG.debug("Save successful.");
+        table.close();
+    }
+
 
     protected void createTable() throws IOException {
         TableDescriptorBuilder builder = TableDescriptorBuilder.newBuilder(TABLE_NAME);

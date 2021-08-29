@@ -22,33 +22,18 @@
 package net.fhirfactory.pegacorn.hestia.audit.dm;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.MasterNotRunningException;
-import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.ZooKeeperConnectionException;
-import org.apache.hadoop.hbase.client.Admin;
-import org.apache.hadoop.hbase.client.ColumnFamilyDescriptor;
-import org.apache.hadoop.hbase.client.ColumnFamilyDescriptorBuilder;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Table;
-import org.apache.hadoop.hbase.client.TableDescriptor;
-import org.apache.hadoop.hbase.client.TableDescriptorBuilder;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.hl7.fhir.instance.model.api.IDomainResource;
 import org.hl7.fhir.r4.model.AuditEvent;
-import org.hl7.fhir.r4.model.AuditEvent.AuditEventAgentComponent;
-import org.hl7.fhir.r4.model.CodeableConcept;
-import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.IdType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,55 +87,51 @@ public class AuditEventProxy extends AuditBaseProxy {
     }
 
     @Create
-    public MethodOutcome createEvent(@ResourceParam AuditEvent theEvent) {
+    public StoreAuditOutcomeEnum createEvent(@ResourceParam AuditEvent theEvent) {
         LOG.debug(".createEvent(): Entry, theEvent (AuditEvent) --> {}", theEvent);
         // TODO figure out how to get event ID
         theEvent.getIdElement().setId("Audit-" + nextId++);
         try {
-            saveToDatabase(theEvent);
+            return saveToDatabase(theEvent);
         } catch (Exception e) {
             e.printStackTrace();
+            return StoreAuditOutcomeEnum.BAD;
         }
-
-        return new MethodOutcome().setId(theEvent.getIdElement());
     }
 
     @Update
-    public MethodOutcome updateEvent(@ResourceParam AuditEvent theEvent) {
+    public StoreAuditOutcomeEnum updateEvent(@ResourceParam AuditEvent theEvent) {
         LOG.debug(".updateEvent(): Entry, theEvent (AuditEvent) --> {}", theEvent);
         try {
-            saveToDatabase(theEvent);
+            return saveToDatabase(theEvent);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new MethodOutcome().setId(theEvent.getIdElement());
+        return StoreAuditOutcomeEnum.BAD;
 
     }
 
     @Delete()
-    public MethodOutcome deleteEvent(@IdParam IdType resourceId) {
+    public StoreAuditOutcomeEnum deleteEvent(@IdParam IdType resourceId) {
         LOG.debug(".deleteEvent(): Entry, resourceId (IdType) --> {}", resourceId);
         throw (new UnsupportedOperationException("deleteEvent() is not supported"));
     }
 
-    @Override
-    protected StoreAuditOutcomeEnum saveToDatabase(IDomainResource resource) {
-        // TODO Auto-generated method stub
+    protected StoreAuditOutcomeEnum saveToDatabase(AuditEvent event) {
         try {
-            Put row = processToPut((AuditEvent) resource);
+            Put row = processToPut(event);
             save(row);
-            return StoreAuditOutcomeEnum.GOOD;
         } catch (MasterNotRunningException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+            return StoreAuditOutcomeEnum.FAILED;
         } catch (ZooKeeperConnectionException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+            return StoreAuditOutcomeEnum.FAILED;
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+            return StoreAuditOutcomeEnum.BAD;
         }
-        return StoreAuditOutcomeEnum.FAILED;
+        return StoreAuditOutcomeEnum.GOOD;
     }
 
 
