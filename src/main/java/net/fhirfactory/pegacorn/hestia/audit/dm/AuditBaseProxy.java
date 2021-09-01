@@ -51,6 +51,7 @@ import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.instance.model.api.IDomainResource;
 import org.hl7.fhir.r4.model.AuditEvent;
 import org.hl7.fhir.r4.model.AuditEvent.AuditEventAgentComponent;
+import org.hl7.fhir.r4.model.AuditEvent.AuditEventEntityComponent;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.slf4j.Logger;
@@ -124,7 +125,7 @@ public abstract class AuditBaseProxy implements IResourceProvider {
         addAgent(resource, row);
         addUpdateDate(resource, row);
         addPeriod(resource, row);
-        addSource(resource, row);
+        addEntityCode(resource, row);
         addPurposeOfEvent(resource, row);
         row.addColumn(CF2, Q_BODY, Bytes.toBytes(parseResourceToJsonString(resource)));
         return row;
@@ -165,17 +166,18 @@ public abstract class AuditBaseProxy implements IResourceProvider {
         }
     }
 
-    private void addSource(AuditEvent resource, Put row) {
-        if (resource.getSource() != null) {
+    private void addEntityCode(AuditEvent resource, Put row) {
+        if (resource.getEntity() != null) {
             StringBuilder sb = new StringBuilder();
-            // TODO is this correct?
-            for (Coding type : resource.getSource().getType()) {
-                sb.append(type.getCode());
+            for(AuditEventEntityComponent entity: resource.getEntity()) {
+                if(entity.getType() != null && entity.getType().getCode() != null) {
+                sb.append(entity.getType().getCode());
                 sb.append(',');
+                }
             }
             if (sb.length() > 0) {
                 row.addColumn(CF1, Q_TYPE, Bytes.toBytes(sb.substring(0, sb.length() - 1)));
-                LOG.debug("Source added: " + sb.substring(0, sb.length() - 1));
+               LOG.debug("Entity type added: " + sb.substring(0, sb.length() -1));
             }
 
         }
