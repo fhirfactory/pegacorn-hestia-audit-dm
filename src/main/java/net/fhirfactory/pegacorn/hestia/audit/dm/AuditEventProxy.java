@@ -23,6 +23,7 @@ package net.fhirfactory.pegacorn.hestia.audit.dm;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -37,6 +38,7 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.filter.ColumnValueFilter;
 import org.apache.hadoop.hbase.filter.DependentColumnFilter;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
@@ -125,6 +127,16 @@ public class AuditEventProxy extends AuditBaseProxy {
         throw (new UnsupportedOperationException("deleteEvent() is not supported"));
     }
 
+    public List<String> getByTypeAndDate(@ResourceParam String entityType, @ResourceParam Date date) {
+        Filter type = new DependentColumnFilter(CF1, Q_TYPE, true, CompareOperator.EQUAL, new RegexStringComparator("^" + entityType + "$"));
+        //TODO KS add filter for checking date
+//        Filter start = new ColumnValueFilter(CF1, Q_PSTART,CompareOperator.GREATER_OR_EQUAL, Bytes.toBytes("Start date"));
+//        Filter end = new ColumnValueFilter(CF1, Q_PSTART,CompareOperator.LESS_OR_EQUAL, Bytes.toBytes("End date"));
+//        FilterList filterList = new FilterList(type, start, end);
+        FilterList filterList = new FilterList(type);
+        
+        return getResults(filterList);
+    }
 
     public List<String> getByUser(@ResourceParam String agentName) {
         Filter f = new DependentColumnFilter(CF1, Q_NAME, true, CompareOperator.EQUAL, new RegexStringComparator("^" + agentName));
