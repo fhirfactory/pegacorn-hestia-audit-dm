@@ -126,8 +126,8 @@ public class AuditEventProxy extends AuditBaseProxy {
     }
 
 
-    public List<AuditEvent> getByUser(@ResourceParam String userName) {
-        Filter f = new DependentColumnFilter(CF1, Q_NAME, true, CompareOperator.EQUAL, new RegexStringComparator("^" + userName));
+    public List<String> getByUser(@ResourceParam String agentName) {
+        Filter f = new DependentColumnFilter(CF1, Q_NAME, true, CompareOperator.EQUAL, new RegexStringComparator("^" + agentName));
         FilterList filterList = new FilterList(f);
         return getResults(filterList);
     }
@@ -149,16 +149,16 @@ public class AuditEventProxy extends AuditBaseProxy {
         return StoreAuditOutcomeEnum.GOOD;
     }
     
-    protected List<AuditEvent> getResults(FilterList filterList) {
+    protected List<String> getResults(FilterList filterList) {
+        List<String> events = new ArrayList<String>();
+        
         try {
-            List<AuditEvent> events = new ArrayList<AuditEvent>();
             Table table = getConnection().getTable(TABLE_NAME);
             Scan scan = new Scan().setFilter(filterList);
 
             ResultScanner results = table.getScanner(scan);
 
             if (results != null) {
-                LOG.info(results.toString());
                 Result result;
                 result = results.next();
 
@@ -167,8 +167,7 @@ public class AuditEventProxy extends AuditBaseProxy {
 
                     String data = Bytes.toString(result.getValue(CF2, Q_BODY));
                     if (data != null) {
-                        AuditEvent event = (AuditEvent) parseResourceFromJsonString(data);
-                        events.add(event);
+                        events.add(data);
                     }
                     result = results.next();
                 }
