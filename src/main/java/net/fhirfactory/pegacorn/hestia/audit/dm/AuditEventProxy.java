@@ -22,16 +22,25 @@
 package net.fhirfactory.pegacorn.hestia.audit.dm;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import org.apache.hadoop.hbase.CompareOperator;
 import org.apache.hadoop.hbase.MasterNotRunningException;
 import org.apache.hadoop.hbase.ZooKeeperConnectionException;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.filter.DependentColumnFilter;
+import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.FilterList;
+import org.apache.hadoop.hbase.filter.RegexStringComparator;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.hl7.fhir.r4.model.AuditEvent;
 import org.hl7.fhir.r4.model.IdType;
@@ -50,7 +59,6 @@ import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 @ApplicationScoped
 public class AuditEventProxy extends AuditBaseProxy {
     private static final Logger LOG = LoggerFactory.getLogger(AuditEventProxy.class);
-
 
     private int nextId;
 
@@ -117,6 +125,13 @@ public class AuditEventProxy extends AuditBaseProxy {
         throw (new UnsupportedOperationException("deleteEvent() is not supported"));
     }
 
+
+    public List<AuditEvent> getByUser(@ResourceParam String userName) {
+        Filter f = new DependentColumnFilter(CF1, Q_NAME, true, CompareOperator.EQUAL, new RegexStringComparator("^" + userName));
+        FilterList filterList = new FilterList(f);
+        return getResults(filterList);
+    }
+
     protected StoreAuditOutcomeEnum saveToDatabase(AuditEvent event) {
         try {
             Put row = processToPut(event);
@@ -133,9 +148,41 @@ public class AuditEventProxy extends AuditBaseProxy {
         }
         return StoreAuditOutcomeEnum.GOOD;
     }
-
-
     
+    protected List<AuditEvent> getResults(FilterList filterList) {
+        try {
+            List<AuditEvent> events = new ArrayList<AuditEvent>();
+            Table table = getConnection().getTable(TABLE_NAME);
+            Scan scan = new Scan().setFilter(filterList);
 
+            ResultScanner results = table.getScanner(scan);
+
+            if (results != null) {
+                LOG.info(results.toString());
+                Result result;
+                result = results.next();
+
+                while (result != null) {
+                    LOG.debug("rowkey=" + Bytes.toString(result.getRow()));
+
+                    String data = Bytes.toString(result.getValue(CF2, Q_BODY));
+                    if (data != null) {
+                        AuditEvent event = (AuditEvent) parseResourceFromJsonString(data);
+                        events.add(event);
+                    }
+                    result = results.next();
+                }
+            }
+            results.close();
+            return events;
+        } catch (MasterNotRunningException e) {
+            e.printStackTrace();
+        } catch (ZooKeeperConnectionException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
 }
