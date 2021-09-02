@@ -38,7 +38,7 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
-import org.apache.hadoop.hbase.filter.ColumnValueFilter;
+import org.apache.hadoop.hbase.filter.BinaryComparator;
 import org.apache.hadoop.hbase.filter.DependentColumnFilter;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
@@ -55,7 +55,6 @@ import ca.uhn.fhir.rest.annotation.IdParam;
 import ca.uhn.fhir.rest.annotation.Read;
 import ca.uhn.fhir.rest.annotation.ResourceParam;
 import ca.uhn.fhir.rest.annotation.Update;
-import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 
 @ApplicationScoped
@@ -127,20 +126,19 @@ public class AuditEventProxy extends AuditBaseProxy {
         throw (new UnsupportedOperationException("deleteEvent() is not supported"));
     }
 
-    public List<String> getByTypeAndDate(@ResourceParam String entityType, @ResourceParam Date date) {
-        Filter type = new DependentColumnFilter(CF1, Q_TYPE, true, CompareOperator.EQUAL, new RegexStringComparator("^" + entityType + "$"));
-        //TODO KS add filter for checking date
-//        Filter start = new ColumnValueFilter(CF1, Q_PSTART,CompareOperator.GREATER_OR_EQUAL, Bytes.toBytes("Start date"));
-//        Filter end = new ColumnValueFilter(CF1, Q_PSTART,CompareOperator.LESS_OR_EQUAL, Bytes.toBytes("End date"));
-//        FilterList filterList = new FilterList(type, start, end);
-        FilterList filterList = new FilterList(type);
-        
-        return getResults(filterList);
-    }
-
     public List<String> getByUser(@ResourceParam String agentName) {
         Filter f = new DependentColumnFilter(CF1, Q_NAME, true, CompareOperator.EQUAL, new RegexStringComparator("^" + agentName));
         FilterList filterList = new FilterList(f);
+        return getResults(filterList);
+    }
+    
+    public List<String> getByTypeAndDate(@ResourceParam String entityType, @ResourceParam Date date) {
+        Filter typeFilter = new DependentColumnFilter(CF1, Q_TYPE, true, CompareOperator.EQUAL, new RegexStringComparator("^" + entityType + "$"));
+        Filter startFilter = new DependentColumnFilter(CF1, Q_PSTART, true, CompareOperator.GREATER_OR_EQUAL,
+                new BinaryComparator(Bytes.toBytes(date.getTime())));
+        Filter endFilter = new DependentColumnFilter(CF1, Q_PEND, true, CompareOperator.LESS_OR_EQUAL, new BinaryComparator(Bytes.toBytes(date.getTime())));
+
+        FilterList filterList = new FilterList(typeFilter, startFilter, endFilter);
         return getResults(filterList);
     }
 
