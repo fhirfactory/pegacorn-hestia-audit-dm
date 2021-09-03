@@ -1,5 +1,4 @@
 kubectl create secret generic pegacorn-hestia-audit-dm-secrets --from-literal=keyPassword="Peg@cornK3yHD" --from-literal=truststorePassword="Peg@cornTrustSt0reHD" --namespace=site-a
-
 In command line...
 mvn clean install -DskipTests
 
@@ -12,3 +11,4 @@ helm upgrade pegacorn-hestia-audit-dm-site-a --install --namespace site-a --set 
 
 ### You do not need to run this -- certificates have created and are provided
 Create-Cert-Set -certSubject 'pegacorn-fhirplace-bigdata-api.site-a' -certPwd 'Peg@cornK3yHD' -createKeystore $True -truststorePwd 'Peg@cornTrustSt0reHD'
+
