@@ -61,7 +61,6 @@ import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 public class AuditEventProxy extends AuditBaseProxy {
     private static final Logger LOG = LoggerFactory.getLogger(AuditEventProxy.class);
 
-    private int nextId;
 
     /**
      * Constructor
@@ -98,8 +97,6 @@ public class AuditEventProxy extends AuditBaseProxy {
     @Create
     public StoreAuditOutcomeEnum createEvent(@ResourceParam AuditEvent theEvent) {
         LOG.debug(".createEvent(): Entry, theEvent (AuditEvent) --> {}", theEvent);
-        // TODO figure out how to get event ID
-        theEvent.getIdElement().setId("Audit-" + nextId++);
         try {
             return saveToDatabase(theEvent);
         } catch (Exception e) {
