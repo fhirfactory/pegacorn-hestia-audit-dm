@@ -3,12 +3,8 @@ In command line...
 mvn clean install -DskipTests
 
 docker pull fhirfactory/pegacorn-base-docker-wildfly:1.0.0
-kubectl create secret generic pegacorn-fhirplace-bigdata-api-secrets --from-literal=keyPassword="Peg@cornK3yHD" --from-literal=truststorePassword="Peg@cornTrustSt0reHD" --namespace=site-a
 
 docker build --rm --build-arg IMAGE_BUILD_TIMESTAMP="%date% %time%" -t pegacorn-hestia-audit-dm:1.0.0-snapshot --file Dockerfile .
 
 helm upgrade pegacorn-hestia-audit-dm-site-a --install --namespace site-a --set serviceName=pegacorn-hestia-audit-dm,imagePullPolicy=Never,basePort=32510,basePortInsidePod=8443,clusterIP=[CLUSTER-IP-NAMENODE],zooKeeperIP=[CLUSTER-IP-ZOOKEEPER],hostPathCerts=/data/certificates,imageTag=1.0.0-snapshot,jvmMaxHeapSizeMB=768,wildflyLogLevel=INFO,javaxNetDebug=none,wildflyAdminUser=admin,wildflyAdminPwd=Pega@dm1n,numOfPods=1 helm
-
-### You do not need to run this -- certificates have created and are provided
-Create-Cert-Set -certSubject 'pegacorn-fhirplace-bigdata-api.site-a' -certPwd 'Peg@cornK3yHD' -createKeystore $True -truststorePwd 'Peg@cornTrustSt0reHD'
 

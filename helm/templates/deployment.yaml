@@ -109,7 +109,7 @@ spec:
         resources:
           requests:
             memory: "{{ add 128 .Values.jvmMaxHeapSizeMB }}Mi"
-        image: {{ .Values.dockerRepo }}pegacorn-fhirplace-bigdata-api:{{ .Values.imageTag }}            
+        image: {{ .Values.dockerRepo }}pegacorn-hestia-audit-dm:{{ .Values.imageTag }}            
         imagePullPolicy: {{ .Values.imagePullPolicy | default "IfNotPresent" }}
         livenessProbe:
           httpGet:

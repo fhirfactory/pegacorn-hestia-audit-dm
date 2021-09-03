@@ -5,7 +5,7 @@
     <servlet>
         <servlet-name>AuditDMAnswerServlet</servlet-name>
         <display-name>AuditDM Servlet</display-name>
-        <servlet-class>net.fhirfactory.pegacorn.hestia.audit.dm.edge.answer.AuditDAnswerServlet</servlet-class>
+        <servlet-class>net.fhirfactory.pegacorn.hestia.audit.dm.edge.answer.AuditDMAnswerServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
