@@ -32,8 +32,6 @@ ARG IMAGE_BUILD_TIMESTAMP
 ENV IMAGE_BUILD_TIMESTAMP=${IMAGE_BUILD_TIMESTAMP}
 RUN echo IMAGE_BUILD_TIMESTAMP=${IMAGE_BUILD_TIMESTAMP}
 
-EXPOSE 8080
-
 USER root
 # Install gosu based on
 # 1. https://gist.github.com/rafaeltuelho/6b29827a9337f06160a9
@@ -43,5 +41,7 @@ COPY gosu-amd64 /usr/local/bin/gosu
 RUN chmod +x /usr/local/bin/gosu && \
 	chmod +x /setup-env-then-start-wildfly-as-jboss.sh && \
    	chmod +x /start-wildfly.sh
+
+EXPOSE 8080
 
 CMD	["/setup-env-then-start-wildfly-as-jboss.sh"]

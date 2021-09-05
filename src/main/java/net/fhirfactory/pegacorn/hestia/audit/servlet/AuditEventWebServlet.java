@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import net.fhirfactory.pegacorn.hestia.audit.dm.AuditEventProxy;
 
+@WebServlet()
 public class AuditEventWebServlet extends HttpServlet {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuditEventWebServlet.class);
