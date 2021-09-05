@@ -1,7 +1,6 @@
 package net.fhirfactory.pegacorn.hestia.audit.servlet;
 
 import java.io.IOException;
-import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.List;
 
@@ -12,7 +11,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.compress.archivers.zip.CharsetAccessor;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.slf4j.Logger;
@@ -32,7 +30,7 @@ public class AuditEventWebServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
+        LOG.info("Get called");
         List<NameValuePair> params = URLEncodedUtils.parse(request.getQueryString(), Charset.defaultCharset());
 
         for (NameValuePair param : params) {
