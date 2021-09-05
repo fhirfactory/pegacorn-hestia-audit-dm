@@ -122,7 +122,10 @@ spec:
         - containerPort: {{ add 0 (.Values.basePortInsidePod | default .Values.basePort) }}
           name: https
           protocol: TCP
-        {{- if (.Values.wildflyAdminUser) }} 
+        {{- if (.Values.wildflyAdminUser) }}
+        - containerPort: 8080
+          name: http
+          protocol: TCP
         - containerPort: 9993
           name: admin
           protocol: TCP
@@ -154,4 +157,3 @@ spec:
       - name: certificates
         hostPath:
           path: {{ .Values.hostPathCerts }}
-
