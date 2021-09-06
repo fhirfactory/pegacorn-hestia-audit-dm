@@ -60,8 +60,11 @@ public class AuditEventWebServlet extends HttpServlet {
                 responseMsg = "Invalid Parameters";
             }
         } catch (Exception e) {
-            LOG.error("Exception occurred performing health check", e);
+            LOG.error("Exception occurred performing search", e);
             responseStatusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+        } catch (Throwable e) {
+            LOG.error("Date unable to be parsed: " + e.getMessage());
+            responseMsg = "Invalid date passed";
         }
         response.setStatus(responseStatusCode);
         if (responseMsg != null) {
