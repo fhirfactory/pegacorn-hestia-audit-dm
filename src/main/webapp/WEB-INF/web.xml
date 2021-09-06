@@ -21,7 +21,7 @@
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>AuditEventWebServlet</servlet-name>
-		<url-pattern>/audit</url-pattern>
+		<url-pattern>/fhir/AuditEvent</url-pattern>
 	</servlet-mapping>
 
 </web-app>

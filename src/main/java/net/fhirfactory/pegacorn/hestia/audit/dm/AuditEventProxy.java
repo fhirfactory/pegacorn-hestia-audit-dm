@@ -129,7 +129,9 @@ public class AuditEventProxy extends AuditBaseProxy {
         return getResults(filterList);
     }
     
-    public List<String> getByTypeAndDate(@ResourceParam String entityType, @ResourceParam Date date) {
+    public List<String> getByTypeAndDate(@ResourceParam String entityType, @ResourceParam String dateString) {
+        Date date = parseDateString(dateString);
+        //TODO date granularity
         Filter typeFilter = new DependentColumnFilter(CF1, Q_TYPE, true, CompareOperator.EQUAL, new RegexStringComparator("^" + entityType + "$"));
         Filter startFilter = new DependentColumnFilter(CF1, Q_PSTART, true, CompareOperator.GREATER_OR_EQUAL,
                 new BinaryComparator(Bytes.toBytes(date.getTime())));
@@ -154,6 +156,11 @@ public class AuditEventProxy extends AuditBaseProxy {
             return StoreAuditOutcomeEnum.BAD;
         }
         return StoreAuditOutcomeEnum.GOOD;
+    }
+    
+    protected Date parseDateString(String dateString) {
+        //TODO writeme
+        return new Date();
     }
     
     protected List<String> getResults(FilterList filterList) {

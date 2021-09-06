@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.slf4j.Logger;
@@ -33,14 +34,31 @@ public class AuditEventWebServlet extends HttpServlet {
         LOG.info("Get called");
         List<NameValuePair> params = URLEncodedUtils.parse(request.getQueryString(), Charset.defaultCharset());
 
+        String entityType = null, date = null, name = null;
         for (NameValuePair param : params) {
+            if("entity-type".equals(param.getName())) {
+                entityType = param.getValue();
+            }
+            if("date".equals(param.getName())) {
+                date = param.getValue();
+            }
+            if("agent-name".equals(param.getName())) {
+                name = param.getValue();
+            }
             LOG.info(param.getName() + " : " + param.getValue());
         }
+        
 
         int responseStatusCode = HttpServletResponse.SC_OK;
         String responseMsg = null;
         try {
-            responseMsg = "Health Check Passed";
+            if(StringUtils.isNotBlank(name)) {
+                responseMsg = parseResults(auditProxy.getByUser(name));
+            } else if (StringUtils.isNotBlank(entityType) && StringUtils.isNotBlank(date)) {
+                responseMsg = parseResults(auditProxy.getByTypeAndDate(entityType, date));
+            } else {
+                responseMsg = "Invalid Parameters";
+            }
         } catch (Exception e) {
             LOG.error("Exception occurred performing health check", e);
             responseStatusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
@@ -50,6 +68,18 @@ public class AuditEventWebServlet extends HttpServlet {
             response.getWriter().write(responseMsg);
             response.getWriter().flush();
         }
+    }
+    
+    private String parseResults(List<String> values) {
+        if(values == null || values.size() == 0) {
+            return "No results found";
+        }
+        StringBuilder sb = new StringBuilder();
+        for(String value : values) {
+            sb.append(value);
+            sb.append(',');
+        }
+        return sb.substring(0, sb.length() -1);
     }
 
 }
