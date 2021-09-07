@@ -65,7 +65,6 @@ import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 public class AuditEventProxy extends AuditBaseProxy {
     private static final Logger LOG = LoggerFactory.getLogger(AuditEventProxy.class);
 
-
     /**
      * Constructor
      */
@@ -132,53 +131,24 @@ public class AuditEventProxy extends AuditBaseProxy {
         FilterList filterList = new FilterList(f);
         return getResults(filterList);
     }
-    
+
     public List<String> getByTypeAndDate(@ResourceParam String entityType, @ResourceParam String dateString) throws Throwable {
-        LOG.info("Searching for Entity: " + entityType + " and Date: " + dateString);
+        LOG.debug("Searching for Entity: " + entityType + " and Date: " + dateString);
         Date startRange = parseDateString(dateString);
         Date endRange = parseEndRange(dateString);
-        LOG.info("For dateString: " + dateString + " - Range from " + startRange.toString() + " to " + endRange.toString());
-        LOG.info("Start (long): " + startRange.getTime() + ". End (long): " + endRange.getTime());
-        //TODO date granularity
+        // TODO date granularity
         Filter typeFilter = new DependentColumnFilter(CF1, Q_TYPE, true, CompareOperator.EQUAL, new RegexStringComparator("^" + entityType + "$"));
-        //StartDate needs to be greater than start of range
-        Filter startFilter1 = new DependentColumnFilter(CF1, Q_PSTART, false, CompareOperator.GREATER_OR_EQUAL,
+        // StartDate needs to be less than end of range
+        Filter startFilter = new DependentColumnFilter(CF1, Q_PSTART, true, CompareOperator.LESS, new BinaryComparator(Bytes.toBytes(endRange.getTime())));
+        // EndDate needs to be greater than start of range
+        Filter endFilter = new DependentColumnFilter(CF1, Q_PEND, true, CompareOperator.GREATER_OR_EQUAL,
                 new BinaryComparator(Bytes.toBytes(startRange.getTime())));
-        //StartDate needs to be less than end of range
-        Filter startFilter2 = new DependentColumnFilter(CF1, Q_PSTART, false, CompareOperator.GREATER,
-                new BinaryComparator(Bytes.toBytes(endRange.getTime())));
-        Filter endFilter1 = new DependentColumnFilter(CF1, Q_PEND, false, CompareOperator.LESS_OR_EQUAL, new BinaryComparator(Bytes.toBytes(startRange.getTime())));
-        Filter endFilter2 = new DependentColumnFilter(CF1, Q_PEND, false, CompareOperator.LESS, new BinaryComparator(Bytes.toBytes(endRange.getTime())));
 
-        FilterList startTimeChecker = new FilterList(Operator.MUST_PASS_ONE);
-        startTimeChecker.addFilter(startFilter1);
-        startTimeChecker.addFilter(startFilter2);
-        
-        FilterList endTimeChecker = new FilterList(Operator.MUST_PASS_ONE);
-        endTimeChecker.addFilter(endFilter1);
-        endTimeChecker.addFilter(endFilter2);
-        
-        //TYPE && (START1 || START2) && (END1 || END2) - should work in all logical cases
         FilterList filterList = new FilterList(Operator.MUST_PASS_ALL);
+        filterList.addFilter(endFilter);
+        filterList.addFilter(startFilter);
         filterList.addFilter(typeFilter);
-        filterList.addFilter(startTimeChecker);
-        filterList.addFilter(endTimeChecker);
-        
-        //Trying to see what's going on where multiple filters are being used
-//        List<String> list = getResults(startTimeChecker);
-//        LOG.info("startTimeChecker sa: " + list.size() + ". checker.size: " + startTimeChecker.size());
-////        startTimeChecker.addFilter(startFilter2);
-//        startTimeChecker.addFilter(startFilter2);
-//        list = getResults(startTimeChecker);
-//        LOG.info("startTimeChecker both: " + list.size() + ". checker.size: " + startTimeChecker.size());
-//        list = getResults(endTimeChecker);
-//        LOG.info("endTimeChecker be: " + list.size() + ". checker.size: " + endTimeChecker.size());
-//        endTimeChecker.addFilter(endFilter1);
-//        list = getResults(endTimeChecker);
-//        LOG.info("endTimeChecker both: " + list.size() + ". checker.size: " + endTimeChecker.size());
-//        
-        
-        
+
         return getResults(filterList);
     }
 
@@ -198,12 +168,12 @@ public class AuditEventProxy extends AuditBaseProxy {
         }
         return StoreAuditOutcomeEnum.GOOD;
     }
-   
+
     Date parseDateString(String dateString) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
         return sdf.parse(dateString);
     }
-    
+
     Date parseEndRange(String dateString) throws ParseException {
         Calendar endRange = Calendar.getInstance();
         endRange.setTime(parseDateString(dateString));
@@ -211,11 +181,10 @@ public class AuditEventProxy extends AuditBaseProxy {
         endRange.add(Calendar.MINUTE, 1);
         return endRange.getTime();
     }
-    
-    
+
     protected List<String> getResults(FilterList filterList) {
         List<String> events = new ArrayList<String>();
-        
+
         try {
             Table table = getConnection().getTable(TABLE_NAME);
             Scan scan = new Scan().setFilter(filterList);
