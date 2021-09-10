@@ -48,6 +48,7 @@ import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.FilterList.Operator;
 import org.apache.hadoop.hbase.filter.RegexStringComparator;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.http.NameValuePair;
 import org.hl7.fhir.r4.model.AuditEvent;
 import org.hl7.fhir.r4.model.IdType;
 import org.slf4j.Logger;
@@ -127,7 +128,7 @@ public class AuditEventProxy extends AuditBaseProxy {
     }
 
     public List<String> getByUser(@ResourceParam String agentName) {
-        Filter f = new DependentColumnFilter(CF1, Q_AGENT_NAME, true, CompareOperator.EQUAL, new RegexStringComparator("^" + agentName));
+        Filter f = new DependentColumnFilter(CF1, Q_AGENT_NAME, true, CompareOperator.EQUAL, new RegexStringComparator("^" + prepareRegex(agentName)));
         FilterList filterList = new FilterList(f);
         return getResults(filterList);
     }
@@ -136,8 +137,7 @@ public class AuditEventProxy extends AuditBaseProxy {
         LOG.debug("Searching for Entity: " + entityType + " and Date: " + dateString);
         Date startRange = parseDateString(dateString);
         Date endRange = parseEndRange(dateString);
-        // TODO date granularity
-        Filter typeFilter = new DependentColumnFilter(CF1, Q_ENTITY_TYPE, true, CompareOperator.EQUAL, new RegexStringComparator("^" + entityType + "$"));
+        Filter typeFilter = new DependentColumnFilter(CF1, Q_ENTITY_TYPE, true, CompareOperator.EQUAL, new RegexStringComparator("^" + prepareRegex(entityType) + "$"));
         // StartDate needs to be less than end of range
         Filter startFilter = new DependentColumnFilter(CF1, Q_PERIOD_START, true, CompareOperator.LESS, new BinaryComparator(Bytes.toBytes(endRange.getTime())));
         // EndDate needs to be greater than start of range
@@ -153,7 +153,47 @@ public class AuditEventProxy extends AuditBaseProxy {
     }
     
     //source site / period / entity name
+    public List<String> getBySiteNameAndDate(@ResourceParam String site, @ResourceParam String entityName, @ResourceParam String dateString) throws Throwable {
+        LOG.debug("Searching for : " + site + ", Entity Name: " + entityName + " and Date: " + dateString);
+        Date startRange = parseDateString(dateString);
+        Date endRange = parseEndRange(dateString);
+        
+        Filter siteFilter = new DependentColumnFilter(CF1, Q_SOURCE, true, CompareOperator.EQUAL, new RegexStringComparator("^" + prepareRegex(site) + "$"));
+        Filter nameFilter = new DependentColumnFilter(CF1, Q_ENTITY_NAME, true, CompareOperator.EQUAL, new RegexStringComparator("^" + prepareRegex(entityName) + "$"));
+        // StartDate needs to be less than end of range
+        Filter startFilter = new DependentColumnFilter(CF1, Q_PERIOD_START, true, CompareOperator.LESS, new BinaryComparator(Bytes.toBytes(endRange.getTime())));
+        // EndDate needs to be greater than start of range
+        Filter endFilter = new DependentColumnFilter(CF1, Q_PERIOD_END, true, CompareOperator.GREATER_OR_EQUAL,
+                new BinaryComparator(Bytes.toBytes(startRange.getTime())));
+
+        FilterList filterList = new FilterList(Operator.MUST_PASS_ALL);
+
+        filterList.addFilter(siteFilter);
+        List<String> list = getResults(filterList);
+        LOG.info("Site filter returned result:" + list.size());
+        filterList.addFilter(nameFilter);
+        list = getResults(filterList);
+        LOG.info("Name and site filter returned result:" + list.size());
+        filterList.addFilter(endFilter);
+        filterList.addFilter(startFilter);
+
+        return getResults(filterList);
+    }
    
+
+    private static String prepareRegex(String string) {
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < string.length(); i++) {
+            switch(string.charAt(i)) {
+            case '(':
+            case ')':
+            case '.':
+                sb.append("\\");
+            }
+            sb.append(string.charAt(i));
+        }
+        return sb.substring(0);
+    }
 
     protected StoreAuditOutcomeEnum saveToDatabase(AuditEvent event) {
         try {

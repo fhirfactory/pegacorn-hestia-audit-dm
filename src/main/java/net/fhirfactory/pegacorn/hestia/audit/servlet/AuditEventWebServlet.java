@@ -34,7 +34,7 @@ public class AuditEventWebServlet extends HttpServlet {
         LOG.info("Get called");
         List<NameValuePair> params = URLEncodedUtils.parse(request.getQueryString(), Charset.defaultCharset());
 
-        String entityType = null, date = null, name = null;
+        String entityType = null, date = null, agentName = null, entityName = null, site = null;
         for (NameValuePair param : params) {
             if("entity-type".equals(param.getName())) {
                 entityType = param.getValue();
@@ -43,19 +43,26 @@ public class AuditEventWebServlet extends HttpServlet {
                 date = param.getValue();
             }
             if("agent-name".equals(param.getName())) {
-                name = param.getValue();
+                agentName = param.getValue();
+            }
+            if("entity-name".equals(param.getName())) {
+                entityName = param.getValue();
+            }
+            if("site".equals(param.getName())) {
+                site = param.getValue();
             }
             LOG.info(param.getName() + " : " + param.getValue());
         }
-        
 
         int responseStatusCode = HttpServletResponse.SC_OK;
         String responseMsg = null;
         try {
-            if(StringUtils.isNotBlank(name)) {
-                responseMsg = parseResults(auditProxy.getByUser(name));
+            if(StringUtils.isNotBlank(agentName)) {
+                responseMsg = parseResults(auditProxy.getByUser(agentName));
             } else if (StringUtils.isNotBlank(entityType) && StringUtils.isNotBlank(date)) {
                 responseMsg = parseResults(auditProxy.getByTypeAndDate(entityType, date));
+            } else if (StringUtils.isNotBlank(site) && StringUtils.isNotBlank(entityName) && StringUtils.isNotBlank(date)) {
+                responseMsg = parseResults(auditProxy.getBySiteNameAndDate(site, entityName, date));
             } else {
                 responseMsg = "Invalid Parameters";
             }
