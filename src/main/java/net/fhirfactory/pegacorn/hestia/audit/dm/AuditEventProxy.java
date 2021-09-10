@@ -48,7 +48,6 @@ import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.FilterList.Operator;
 import org.apache.hadoop.hbase.filter.RegexStringComparator;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.http.NameValuePair;
 import org.hl7.fhir.r4.model.AuditEvent;
 import org.hl7.fhir.r4.model.IdType;
 import org.slf4j.Logger;
