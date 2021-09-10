@@ -127,7 +127,7 @@ public class AuditEventProxy extends AuditBaseProxy {
     }
 
     public List<String> getByUser(@ResourceParam String agentName) {
-        Filter f = new DependentColumnFilter(CF1, Q_NAME, true, CompareOperator.EQUAL, new RegexStringComparator("^" + agentName));
+        Filter f = new DependentColumnFilter(CF1, Q_AGENT_NAME, true, CompareOperator.EQUAL, new RegexStringComparator("^" + agentName));
         FilterList filterList = new FilterList(f);
         return getResults(filterList);
     }
@@ -137,11 +137,11 @@ public class AuditEventProxy extends AuditBaseProxy {
         Date startRange = parseDateString(dateString);
         Date endRange = parseEndRange(dateString);
         // TODO date granularity
-        Filter typeFilter = new DependentColumnFilter(CF1, Q_TYPE, true, CompareOperator.EQUAL, new RegexStringComparator("^" + entityType + "$"));
+        Filter typeFilter = new DependentColumnFilter(CF1, Q_ENTITY_TYPE, true, CompareOperator.EQUAL, new RegexStringComparator("^" + entityType + "$"));
         // StartDate needs to be less than end of range
-        Filter startFilter = new DependentColumnFilter(CF1, Q_PSTART, true, CompareOperator.LESS, new BinaryComparator(Bytes.toBytes(endRange.getTime())));
+        Filter startFilter = new DependentColumnFilter(CF1, Q_PERIOD_START, true, CompareOperator.LESS, new BinaryComparator(Bytes.toBytes(endRange.getTime())));
         // EndDate needs to be greater than start of range
-        Filter endFilter = new DependentColumnFilter(CF1, Q_PEND, true, CompareOperator.GREATER_OR_EQUAL,
+        Filter endFilter = new DependentColumnFilter(CF1, Q_PERIOD_END, true, CompareOperator.GREATER_OR_EQUAL,
                 new BinaryComparator(Bytes.toBytes(startRange.getTime())));
 
         FilterList filterList = new FilterList(Operator.MUST_PASS_ALL);
@@ -151,6 +151,9 @@ public class AuditEventProxy extends AuditBaseProxy {
 
         return getResults(filterList);
     }
+    
+    //source site / period / entity name
+   
 
     protected StoreAuditOutcomeEnum saveToDatabase(AuditEvent event) {
         try {

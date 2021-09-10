@@ -66,11 +66,13 @@ public abstract class AuditBaseProxy implements IResourceProvider {
     protected static final TableName TABLE_NAME = TableName.valueOf("AUDIT_EVENT");
     protected static final byte[] CF1 = Bytes.toBytes("INFO");
     protected static final byte[] CF2 = Bytes.toBytes("DATA");
-    protected static final byte[] Q_NAME = Bytes.toBytes("NAME");
+    protected static final byte[] Q_AGENT_NAME = Bytes.toBytes("NAME");
     protected static final byte[] Q_UPDATE = Bytes.toBytes("DATE");
-    protected static final byte[] Q_PSTART = Bytes.toBytes("START");
-    protected static final byte[] Q_PEND = Bytes.toBytes("END");
-    protected static final byte[] Q_TYPE = Bytes.toBytes("TYPE");
+    protected static final byte[] Q_PERIOD_START = Bytes.toBytes("START");
+    protected static final byte[] Q_PERIOD_END = Bytes.toBytes("END");
+    protected static final byte[] Q_SOURCE = Bytes.toBytes("SOURCE"); // Source site
+    protected static final byte[] Q_ENTITY_TYPE = Bytes.toBytes("TYPE"); // Entity code
+    protected static final byte[] Q_ENTITY_NAME = Bytes.toBytes("ENTITY"); // Entity name
     protected static final byte[] Q_PURPOSE = Bytes.toBytes("PURPOSE");
     protected static final byte[] Q_BODY = Bytes.toBytes("BODY");
 
@@ -124,7 +126,8 @@ public abstract class AuditBaseProxy implements IResourceProvider {
         addAgent(resource, row);
         addUpdateDate(resource, row);
         addPeriod(resource, row);
-        addEntityCode(resource, row);
+        addSourceSite(resource, row);
+        addEntityDetails(resource, row);
         addPurposeOfEvent(resource, row);
         row.addColumn(CF2, Q_BODY, Bytes.toBytes(parseResourceToJsonString(resource)));
         return row;
@@ -135,13 +138,12 @@ public abstract class AuditBaseProxy implements IResourceProvider {
             for (AuditEventAgentComponent agent : resource.getAgent()) {
                 // Store the first name found
                 if (StringUtils.isNotBlank(agent.getName())) {
-                    row.addColumn(CF1, Q_NAME, Bytes.toBytes(agent.getName()));
+                    row.addColumn(CF1, Q_AGENT_NAME, Bytes.toBytes(agent.getName()));
                     LOG.debug("Agent added: " + agent.getName());
                     break;
                 }
             }
         }
-
     }
 
     private void addUpdateDate(AuditEvent resource, Put row) {
@@ -154,31 +156,48 @@ public abstract class AuditBaseProxy implements IResourceProvider {
     private void addPeriod(AuditEvent resource, Put row) {
         if (resource.getPeriod() != null) {
             if (resource.getPeriod().getStart() != null) {
-                row.addColumn(CF1, Q_PSTART, Bytes.toBytes(resource.getPeriod().getStart().getTime()));
+                row.addColumn(CF1, Q_PERIOD_START, Bytes.toBytes(resource.getPeriod().getStart().getTime()));
                 LOG.debug("Pending start added: " + resource.getPeriod().getStart().toString());
 
             }
             if (resource.getPeriod().getEnd() != null) {
-                row.addColumn(CF1, Q_PEND, Bytes.toBytes(resource.getPeriod().getEnd().getTime()));
+                row.addColumn(CF1, Q_PERIOD_END, Bytes.toBytes(resource.getPeriod().getEnd().getTime()));
                 LOG.debug("Pending end added: " + resource.getPeriod().getEnd().toString());
             }
         }
     }
 
-    private void addEntityCode(AuditEvent resource, Put row) {
+    private void addSourceSite(AuditEvent resource, Put row) {
+        if (resource.getSource() != null) {
+
+            row.addColumn(CF1, Q_SOURCE, Bytes.toBytes(resource.getSource().getSite()));
+            LOG.debug("Entity type added: " + resource.getSource().getSite());
+
+        }
+    }
+
+    private void addEntityDetails(AuditEvent resource, Put row) {
         if (resource.getEntity() != null) {
-            StringBuilder sb = new StringBuilder();
-            for(AuditEventEntityComponent entity: resource.getEntity()) {
-                if(entity.getType() != null && entity.getType().getCode() != null) {
-                sb.append(entity.getType().getCode());
-                sb.append(',');
+            StringBuilder code = new StringBuilder();
+            StringBuilder name = new StringBuilder();
+            for (AuditEventEntityComponent entity : resource.getEntity()) {
+                if (entity.getType() != null && entity.getType().getCode() != null) {
+                    code.append(entity.getType().getCode());
+                    code.append(',');
+                }
+                if(StringUtils.isNotBlank(entity.getName())) {
+                    name.append(entity.getName());
+                    name.append(',');
                 }
             }
-            if (sb.length() > 0) {
-                row.addColumn(CF1, Q_TYPE, Bytes.toBytes(sb.substring(0, sb.length() - 1)));
-               LOG.debug("Entity type added: " + sb.substring(0, sb.length() -1));
+            if (name.length() > 0) {
+                row.addColumn(CF1, Q_ENTITY_NAME, Bytes.toBytes(name.substring(0, name.length() - 1)));
+                LOG.debug("Entity type added: " + name.substring(0, name.length() - 1));
             }
-
+            if (code.length() > 0) {
+                row.addColumn(CF1, Q_ENTITY_TYPE, Bytes.toBytes(code.substring(0, code.length() - 1)));
+                LOG.debug("Entity type added: " + code.substring(0, code.length() - 1));
+            }
         }
     }
 
@@ -217,7 +236,6 @@ public abstract class AuditBaseProxy implements IResourceProvider {
         LOG.debug("Save successful.");
         table.close();
     }
-
 
     protected void createTable() throws IOException {
         TableDescriptorBuilder builder = TableDescriptorBuilder.newBuilder(TABLE_NAME);
