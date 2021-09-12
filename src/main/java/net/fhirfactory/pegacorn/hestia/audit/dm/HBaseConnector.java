@@ -19,25 +19,9 @@ public class HBaseConnector {
     private static final Logger LOG = LoggerFactory.getLogger(HBaseConnector.class);
 
     protected static Connection connection = null;
-    
-    @PostConstruct
-   public void setup() {
-       try {
-        getConnection();
-    } catch (MasterNotRunningException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-    } catch (ZooKeeperConnectionException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-    } catch (IOException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-    }
-   }
-    
+
     Connection getConnection() throws MasterNotRunningException, ZooKeeperConnectionException, IOException {
-        if(connection == null) {
+        if (connection == null) {
             LOG.info("No configuration found. Creating a new one");
             Configuration config = HBaseConfiguration.create();
 
@@ -46,9 +30,9 @@ public class HBaseConnector {
             config.set("hbase.zookeeper.property.clientPort", "2181");
 
             connection = ConnectionFactory.createConnection(config);
+
         }
         return connection;
     }
-    
 
 }
