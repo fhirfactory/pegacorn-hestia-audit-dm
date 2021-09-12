@@ -8,3 +8,16 @@ docker build --rm --build-arg IMAGE_BUILD_TIMESTAMP="%date% %time%" -t pegacorn-
 
 helm upgrade pegacorn-hestia-audit-dm-site-a --install --namespace site-a --set serviceName=pegacorn-hestia-audit-dm,imagePullPolicy=Never,basePort=32510,basePortInsidePod=8443,hostPathCerts=/data/certificates,imageTag=1.0.0-snapshot,jvmMaxHeapSizeMB=768,wildflyLogLevel=INFO,javaxNetDebug=none,wildflyAdminUser=admin,wildflyAdminPwd=Pega@dm1n,numOfPods=1 helm
 
+
+Search 
+http://pegacorn-hestia-audit-dm.site-a:32513/fhir/AuditEvent?[parameters]
+Potential parameters 
+getByName()
+ - agent-name=[agent-name]
+getByTypeAndDate()
+ - entity-type=[entity-code]
+ - date=[yyyy-MM-ddTHH:mm] (searches the full minute)
+getBySiteEntityAndDate()
+ - site=[source-site]
+ - entity-name=[entity-name]
+ - date=[yyyy-MM-ddTHH:mm] (searches the full minute)
