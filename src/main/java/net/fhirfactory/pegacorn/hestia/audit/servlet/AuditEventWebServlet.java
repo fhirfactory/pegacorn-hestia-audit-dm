@@ -17,7 +17,7 @@ import org.apache.http.client.utils.URLEncodedUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.fhirfactory.pegacorn.hestia.audit.dm.AuditEventProxy;
+import net.fhirfactory.pegacorn.hestia.audit.dm.AuditSearchProxy;
 
 @WebServlet()
 public class AuditEventWebServlet extends HttpServlet {
@@ -27,7 +27,7 @@ public class AuditEventWebServlet extends HttpServlet {
     private static final long serialVersionUID = -1436416122014465914L;
 
     @Inject
-    private AuditEventProxy auditProxy;
+    private AuditSearchProxy auditProxy;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
