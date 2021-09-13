@@ -24,7 +24,6 @@ package net.fhirfactory.pegacorn.hestia.audit.dm;
 
 import java.io.IOException;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 
 import org.apache.hadoop.conf.Configuration;
@@ -54,7 +53,7 @@ public class HBaseConnector {
             try {
                 connection = ConnectionFactory.createConnection(config);
             } catch (NoSuchMethodError e) {
-                LOG.error("Error on connection creation. Retrying." + e.getMessage());
+                LOG.error("Error on connection creation. Retrying... " + e.getMessage());
                 connection = ConnectionFactory.createConnection(config);
             }
         }
