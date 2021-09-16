@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Kelly Skye
+ * Copyright (c) 2021 Kelly Skye (ACT Health)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,14 +19,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.fhirfactory.pegacorn.hestia.audit.dm.common;
+package net.fhirfactory.pegacorn.hestia.audit.dm.processingplant;
 
-import javax.enterprise.context.ApplicationScoped;
+import net.fhirfactory.pegacorn.processingplant.ProcessingPlant;
 
-@ApplicationScoped
-public class AuditDMNames {
+public abstract class HestiaAuditDMProcessingPlant extends ProcessingPlant {
 
-    public String getInteractAuditDMHTTPServerName(){
-        return("audit-dm-rest");
-    }
+
 }

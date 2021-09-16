@@ -19,27 +19,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.fhirfactory.pegacorn.hestia.audit.interact;
+package net.fhirfactory.pegacorn.hestia.audit.dm.workshops.edge.answer;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.inject.Inject;
-import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.model.OnExceptionDefinition;
 import org.apache.camel.model.rest.RestBindingMode;
 import org.apache.camel.model.rest.RestParamType;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,9 +39,8 @@ import net.fhirfactory.pegacorn.components.transaction.valuesets.exceptions.Reso
 import net.fhirfactory.pegacorn.components.transaction.valuesets.exceptions.ResourceUpdateException;
 import net.fhirfactory.pegacorn.deployment.topology.model.endpoints.base.IPCTopologyEndpoint;
 import net.fhirfactory.pegacorn.deployment.topology.model.endpoints.technologies.HTTPServerClusterServiceTopologyEndpointPort;
-import net.fhirfactory.pegacorn.deployment.topology.model.nodes.ProcessingPlantTopologyNode;
-import net.fhirfactory.pegacorn.hestia.audit.dm.AuditSearchProxy;
-import net.fhirfactory.pegacorn.hestia.audit.dm.common.AuditDMNames;
+import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.AuditSearchProxy;
+import net.fhirfactory.pegacorn.hestia.audit.dm.common.HestiaAuditDMNames;
 import net.fhirfactory.pegacorn.internals.PegacornReferenceProperties;
 import net.fhirfactory.pegacorn.petasos.core.moa.wup.MessageBasedWUPEndpoint;
 import net.fhirfactory.pegacorn.workshops.InteractWorkshop;
@@ -71,7 +61,7 @@ public class AuditHTTPServer extends NonResilientWithAuditTrailWUP {
     private AuditSearchProxy auditSearchProxy;
     
     @Inject
-    private AuditDMNames names;
+    private HestiaAuditDMNames names;
     
     @Inject
     private PegacornReferenceProperties pegacornReferenceProperties;

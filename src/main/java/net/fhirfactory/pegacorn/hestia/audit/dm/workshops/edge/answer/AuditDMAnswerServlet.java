@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.fhirfactory.pegacorn.hestia.audit.dm.edge.answer;
+package net.fhirfactory.pegacorn.hestia.audit.dm.workshops.edge.answer;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ca.uhn.fhir.rest.server.RestfulServer;
-import net.fhirfactory.pegacorn.hestia.audit.dm.AuditEventProxy;
+import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.AuditEventProxy;
 
 //Class will need to be abstracted later when Aether wrapper is made
 //For now, creating actual class for testing purposes

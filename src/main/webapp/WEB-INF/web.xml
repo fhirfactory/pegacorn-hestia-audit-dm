@@ -5,8 +5,8 @@
 	<servlet>
 		<servlet-name>AuditDMAnswerServlet</servlet-name>
 		<display-name>AuditDM Servlet</display-name>
-		<servlet-class>net.fhirfactory.pegacorn.hestia.audit.dm.edge.answer.AuditDMAnswerServlet
-		</servlet-class>
+		<servlet-class>net.fhirfactory.pegacorn.hestia.audit.dm.workshops.edge.answer.AuditDMAnswerServlet
+        </servlet-class>
 	</servlet>
 	<servlet>
 		<servlet-name>AuditEventWebServlet</servlet-name>

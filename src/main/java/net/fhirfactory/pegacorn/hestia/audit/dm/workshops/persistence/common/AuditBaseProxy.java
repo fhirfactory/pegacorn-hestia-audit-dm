@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.fhirfactory.pegacorn.hestia.audit.dm;
+package net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.common;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -31,6 +31,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.HBaseConnector;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
@@ -78,6 +79,7 @@ public abstract class AuditBaseProxy implements IResourceProvider {
 
     @Inject
     private HBaseConnector connector;
+
     FhirContext ctx = FhirContext.forR4();
 
     // TODO Note this will eventually have an enum for when the server is down

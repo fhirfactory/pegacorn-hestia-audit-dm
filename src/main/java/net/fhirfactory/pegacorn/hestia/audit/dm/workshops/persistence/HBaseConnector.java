@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package net.fhirfactory.pegacorn.hestia.audit.dm;
+package net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence;
 
 import java.io.IOException;
 
@@ -41,7 +41,7 @@ public class HBaseConnector {
 
     protected static Connection connection = null;
 
-    Connection getConnection() throws MasterNotRunningException, ZooKeeperConnectionException, IOException {
+    public Connection getConnection() throws MasterNotRunningException, ZooKeeperConnectionException, IOException {
         if (connection == null) {
             LOG.info("No configuration found. Creating a new one");
             Configuration config = HBaseConfiguration.create();
