@@ -107,6 +107,25 @@ public class AuditSearchProxy extends AuditBaseProxy {
 
         return getResults(filterList);
     }
+    
+
+    // source site / period / entity name
+    public List<String> getBySiteAndName(@ResourceParam String site, @ResourceParam String entityName, @ResourceParam String limit) throws Throwable {
+        LOG.debug("Searching for : " + site + ", Entity Name: " + entityName + " and limit: " + limit);
+
+        Filter siteFilter = new DependentColumnFilter(CF1, Q_SOURCE, true, CompareOperator.EQUAL, new RegexStringComparator("^" + prepareRegex(site) + "$"));
+        Filter nameFilter = new DependentColumnFilter(CF1, Q_ENTITY_NAME, true, CompareOperator.EQUAL,
+                new RegexStringComparator("^" + prepareRegex(entityName) + "$"));
+
+        FilterList filterList = new FilterList(Operator.MUST_PASS_ALL);
+
+        filterList.addFilter(siteFilter);
+        filterList.addFilter(nameFilter);
+
+        int lmt = Integer.parseInt(limit);
+        return getResults(filterList, lmt, true);
+    }
+
 
     /*
      * Needed because some of the names can have special characters that would be
@@ -141,11 +160,17 @@ public class AuditSearchProxy extends AuditBaseProxy {
     }
 
     protected List<String> getResults(FilterList filterList) {
+        return getResults(filterList, -1, false);
+    }        
+    protected List<String> getResults(FilterList filterList, int limit, boolean reverse) {
+
         List<String> events = new ArrayList<String>();
 
         try {
             Table table = getConnection().getTable(TABLE_NAME);
             Scan scan = new Scan().setFilter(filterList);
+            scan.setReversed(reverse);
+            scan.setLimit(limit);
 
             ResultScanner results = table.getScanner(scan);
 
