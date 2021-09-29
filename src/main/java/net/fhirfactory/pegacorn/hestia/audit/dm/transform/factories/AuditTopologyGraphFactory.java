@@ -29,18 +29,18 @@ import org.slf4j.LoggerFactory;
 
 import net.fhirfactory.pegacorn.common.model.componentid.TopologyNodeTypeEnum;
 import net.fhirfactory.pegacorn.components.interfaces.topology.ProcessingPlantInterface;
+import net.fhirfactory.pegacorn.deployment.topology.manager.TopologyIM;
 import net.fhirfactory.pegacorn.deployment.topology.model.common.TopologyNode;
 import net.fhirfactory.pegacorn.deployment.topology.model.nodes.ProcessingPlantTopologyNode;
 import net.fhirfactory.pegacorn.hestia.audit.dm.model.AuditMonitoredProcessingPlant;
 import net.fhirfactory.pegacorn.hestia.audit.dm.model.AuditTopologyGraph;
-import net.fhirfactory.pegacorn.petasos.endpoints.oam.hestia.audit.AuditDiscoveredNodesDM;
 
 @ApplicationScoped
 public class AuditTopologyGraphFactory {
     private static final Logger LOG = LoggerFactory.getLogger(AuditMonitoredWUPFactory.class);
 
     @Inject
-    private AuditDiscoveredNodesDM nodeDM;
+    private TopologyIM topologyIM;
 
     @Inject
     private ProcessingPlantInterface processingPlant;
@@ -50,8 +50,8 @@ public class AuditTopologyGraphFactory {
 
     public AuditTopologyGraph newTopologyGraph(){
         AuditTopologyGraph graph = new AuditTopologyGraph();
-        graph.setDeploymentName(processingPlant.getSolutionNode().getComponentId());
-        for(TopologyNode currentNode: nodeDM.getTopologyNodeSet()){
+        graph.setDeploymentName(processingPlant.getSolutionNode().getComponentID());
+        for(TopologyNode currentNode: topologyIM.getNodeElementSet()){
             if(currentNode.getComponentType().equals(TopologyNodeTypeEnum.PROCESSING_PLANT)){
                 ProcessingPlantTopologyNode currentProcessingPlantTopologyNode = (ProcessingPlantTopologyNode)currentNode;
                 AuditMonitoredProcessingPlant processingPlant = processingPlantFactory.newProcessingPlant(currentProcessingPlantTopologyNode);

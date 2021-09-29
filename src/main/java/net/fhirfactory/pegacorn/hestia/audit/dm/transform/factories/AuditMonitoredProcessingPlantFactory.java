@@ -21,21 +21,21 @@
  */
 package net.fhirfactory.pegacorn.hestia.audit.dm.transform.factories;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.fhirfactory.pegacorn.common.model.componentid.TopologyNodeFDN;
 import net.fhirfactory.pegacorn.common.model.componentid.TopologyNodeRDN;
 import net.fhirfactory.pegacorn.common.model.componentid.TopologyNodeTypeEnum;
+import net.fhirfactory.pegacorn.deployment.topology.manager.TopologyIM;
 import net.fhirfactory.pegacorn.deployment.topology.model.nodes.ProcessingPlantTopologyNode;
 import net.fhirfactory.pegacorn.deployment.topology.model.nodes.WorkshopTopologyNode;
 import net.fhirfactory.pegacorn.hestia.audit.dm.model.AuditMonitoredProcessingPlant;
 import net.fhirfactory.pegacorn.hestia.audit.dm.model.AuditMonitoredWorkshop;
 import net.fhirfactory.pegacorn.hestia.audit.dm.transform.factories.common.AuditMonitoredNodeFactory;
-import net.fhirfactory.pegacorn.petasos.endpoints.oam.hestia.audit.AuditDiscoveredNodesDM;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 @ApplicationScoped
 public class AuditMonitoredProcessingPlantFactory extends AuditMonitoredNodeFactory {
@@ -44,9 +44,10 @@ public class AuditMonitoredProcessingPlantFactory extends AuditMonitoredNodeFact
     @Inject
     private AuditMonitoredWorkshopFactory workshopFactory;
 
-    @Inject
-    private AuditDiscoveredNodesDM nodeDM;
 
+    @Inject
+    private TopologyIM topologyIM;
+    
     @Override
     protected Logger getLogger() {
         return (LOG);
@@ -76,7 +77,7 @@ public class AuditMonitoredProcessingPlantFactory extends AuditMonitoredNodeFact
         processingPlant.setSite(siteName);
         processingPlant.setPlatformID(platformNodeName);
         for(TopologyNodeFDN currentWorkshopFDN: topologyNode.getWorkshops()){
-            WorkshopTopologyNode workshopTopologyNode = (WorkshopTopologyNode) nodeDM.getTopologyNode(currentWorkshopFDN);
+            WorkshopTopologyNode workshopTopologyNode = (WorkshopTopologyNode) topologyIM.getNode(currentWorkshopFDN);
             AuditMonitoredWorkshop currentWorkshop = workshopFactory.newWorkshop(workshopTopologyNode);
             processingPlant.getWorkshops().add(currentWorkshop);
         }

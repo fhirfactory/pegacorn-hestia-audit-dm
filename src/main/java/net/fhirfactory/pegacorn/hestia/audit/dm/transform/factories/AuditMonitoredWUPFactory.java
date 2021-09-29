@@ -28,19 +28,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.fhirfactory.pegacorn.common.model.componentid.TopologyNodeFDN;
+import net.fhirfactory.pegacorn.deployment.topology.manager.TopologyIM;
 import net.fhirfactory.pegacorn.deployment.topology.model.endpoints.base.IPCTopologyEndpoint;
 import net.fhirfactory.pegacorn.deployment.topology.model.nodes.WorkUnitProcessorTopologyNode;
 import net.fhirfactory.pegacorn.hestia.audit.dm.model.AuditMonitoredEndpoint;
 import net.fhirfactory.pegacorn.hestia.audit.dm.model.AuditMonitoredWUP;
 import net.fhirfactory.pegacorn.hestia.audit.dm.transform.factories.common.AuditMonitoredNodeFactory;
-import net.fhirfactory.pegacorn.petasos.endpoints.oam.hestia.audit.AuditDiscoveredNodesDM;
 
 @ApplicationScoped
 public class AuditMonitoredWUPFactory extends AuditMonitoredNodeFactory {
     private static final Logger LOG = LoggerFactory.getLogger(AuditMonitoredWUPFactory.class);
 
     @Inject
-    private AuditDiscoveredNodesDM nodeDM;
+    private TopologyIM topologyIM;
 
     @Inject
     private AuditMonitoredEndpointFactory endpointFactory;
@@ -55,7 +55,7 @@ public class AuditMonitoredWUPFactory extends AuditMonitoredNodeFactory {
         wup = (AuditMonitoredWUP) newAuditMonitoredNode(wup, wupTopologyNode);
         for(TopologyNodeFDN currentEndpointFDN: wupTopologyNode.getEndpoints()){
             getLogger().warn(".newWorkUnitProcessor(): currentEndpointFDN->{}", currentEndpointFDN);
-            IPCTopologyEndpoint endpointTopologyNode = (IPCTopologyEndpoint) nodeDM.getTopologyNode(currentEndpointFDN);
+            IPCTopologyEndpoint endpointTopologyNode = (IPCTopologyEndpoint) topologyIM.getNode(currentEndpointFDN);
             getLogger().warn(".newWorkUnitProcessor(): endpointTopologyNode->{}", endpointTopologyNode);
             AuditMonitoredEndpoint currentEndpoint = endpointFactory.newEndpoint(endpointTopologyNode);
             if(currentEndpoint != null) {

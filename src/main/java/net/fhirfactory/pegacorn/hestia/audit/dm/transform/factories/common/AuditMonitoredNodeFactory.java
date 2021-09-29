@@ -32,7 +32,7 @@ public abstract class AuditMonitoredNodeFactory {
     abstract protected Logger getLogger();
 
     protected AuditMonitoredNode newAuditMonitoredNode(AuditMonitoredNode monitoredNode, TopologyNode topologyNode){
-        monitoredNode.setNodeID(topologyNode.getComponentId());
+        monitoredNode.setNodeID(topologyNode.getComponentID());
         monitoredNode.setComponentName(topologyNode.getNodeRDN().getNodeName());
         AuditMonitoredNodeTypeEnum nodeTypeEnum = AuditMonitoredNodeTypeEnum.nodeTypeFromTopologyNodeType(topologyNode.getComponentType());
         monitoredNode.setNodeType(nodeTypeEnum);

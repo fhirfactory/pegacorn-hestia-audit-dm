@@ -33,14 +33,10 @@ import net.fhirfactory.pegacorn.deployment.topology.model.endpoints.base.IPCTopo
 import net.fhirfactory.pegacorn.deployment.topology.model.endpoints.interact.StandardInteractClientTopologyEndpointPort;
 import net.fhirfactory.pegacorn.hestia.audit.dm.model.AuditMonitoredEndpoint;
 import net.fhirfactory.pegacorn.hestia.audit.dm.transform.factories.common.AuditMonitoredNodeFactory;
-import net.fhirfactory.pegacorn.petasos.endpoints.oam.hestia.audit.AuditDiscoveredNodesDM;
 
 @ApplicationScoped
 public class AuditMonitoredEndpointFactory  extends AuditMonitoredNodeFactory {
     private static final Logger LOG = LoggerFactory.getLogger(AuditMonitoredEndpointFactory.class);
-
-    @Inject
-    private AuditDiscoveredNodesDM nodeDM;
 
     @Override
     protected Logger getLogger() {
