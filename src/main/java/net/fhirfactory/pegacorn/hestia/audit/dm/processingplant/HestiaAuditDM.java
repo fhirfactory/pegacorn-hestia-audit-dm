@@ -23,7 +23,7 @@ package net.fhirfactory.pegacorn.hestia.audit.dm.processingplant;
 
 import net.fhirfactory.pegacorn.processingplant.ProcessingPlant;
 
-public abstract class HestiaAuditDMProcessingPlant extends ProcessingPlant {
+public abstract class HestiaAuditDM extends ProcessingPlant {
 
 
 }
