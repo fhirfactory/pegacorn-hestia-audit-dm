@@ -19,7 +19,7 @@
     </parent>
 
     <artifactId>pegacorn-hestia-audit-dm</artifactId>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
 
     <name>Pegacorn :: Hestia :: Audit :: Data Manager (DM)</name>
 
