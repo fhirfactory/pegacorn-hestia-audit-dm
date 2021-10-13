@@ -32,6 +32,8 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 
 import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.common.AuditBaseProxy;
+import org.apache.camel.Header;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.CompareOperator;
 import org.apache.hadoop.hbase.MasterNotRunningException;
 import org.apache.hadoop.hbase.ZooKeeperConnectionException;
@@ -55,13 +57,67 @@ import ca.uhn.fhir.rest.annotation.ResourceParam;
 public class AuditSearchProxy extends AuditBaseProxy {
     private static final Logger LOG = LoggerFactory.getLogger(AuditSearchProxy.class);
 
+    //
+    // Business Methods
+    //
+
+
     public List<String> getByUser(@ResourceParam String agentName) {
         Filter f = new DependentColumnFilter(CF1, Q_AGENT_NAME, true, CompareOperator.EQUAL, new RegexStringComparator("^" + prepareRegex(agentName)));
         FilterList filterList = new FilterList(f);
         return getResults(filterList);
     }
 
-    public List<String> getByTypeAndDate(@ResourceParam String entityType, @ResourceParam String dateString) throws Throwable {
+    public List<String> doSearch(
+            @Header("agentName") String agentName,
+            @Header("entityType") String entityType,
+            @Header("entityName") String entityName,
+            @Header("date") String date,
+            @Header("site") String site,
+            @Header("limit") String limit) throws Throwable {
+        getLogger().debug(".doSearch(): Entry, entityName->{}, date->{}, site->{}", entityName, date, site);
+        List<String> answerList = new ArrayList<>();
+
+        boolean agentNameExists = StringUtils.isNotEmpty(agentName);
+        boolean entityTypeExists = StringUtils.isNotEmpty(entityType);
+        boolean entityNameExists = StringUtils.isNotEmpty(entityName);
+        boolean dateExists = StringUtils.isNotEmpty(date);
+        boolean siteExists = StringUtils.isNotEmpty(site);
+        boolean limitExists = StringUtils.isNotEmpty(limit);
+
+        // Option 1 (agentName)
+        if(agentNameExists){
+            // nothing to be done yet!
+            getLogger().debug("..doSearch(): Exit, completed agentName search");
+            return(answerList);
+        }
+
+        // Option 2 (entityType + date)
+        if(entityTypeExists && dateExists){
+            answerList.addAll(getByTypeAndDate(entityType, date));
+            getLogger().debug("..doSearch(): Exit, completed Type+Date search");
+            return(answerList);
+        }
+
+        // Option 3 (entityName + site + date)
+        if(entityNameExists && dateExists && siteExists){
+            answerList.addAll(getBySiteNameAndDate(site, entityName, date));
+            getLogger().debug(".doSearch(): Exit, completed Site+Name+Date search");
+            return(answerList);
+        }
+
+        // Option 4 (entityName + site + limit)
+        if(entityNameExists && siteExists && limitExists){
+            answerList.addAll(getBySiteAndName(site, entityName, limit));
+            getLogger().debug(".doSearch(): Exit, completed Site+Name+Limit search");
+            return(answerList);
+        }
+        getLogger().debug(".doSearch(): Exit, no search done, invalid parameter set");
+        return(answerList);
+    }
+
+
+    public List<String> getByTypeAndDate(String entityType, String dateString) throws Throwable {
         LOG.debug("Searching for Entity: " + entityType + " and Date: " + dateString);
         Date startRange = parseDateString(dateString);
         Date endRange = parseEndRange(dateString);
@@ -83,7 +139,7 @@ public class AuditSearchProxy extends AuditBaseProxy {
     }
 
     // source site / period / entity name
-    public List<String> getBySiteNameAndDate(@ResourceParam String site, @ResourceParam String entityName, @ResourceParam String dateString) throws Throwable {
+    public List<String> getBySiteNameAndDate( String site, String entityName, String dateString) throws Throwable {
         LOG.debug("Searching for : " + site + ", Entity Name: " + entityName + " and Date: " + dateString);
         Date startRange = parseDateString(dateString);
         Date endRange = parseEndRange(dateString);
@@ -110,7 +166,7 @@ public class AuditSearchProxy extends AuditBaseProxy {
     
 
     // source site / period / entity name
-    public List<String> getBySiteAndName(@ResourceParam String site, @ResourceParam String entityName, @ResourceParam String limit) throws Throwable {
+    public List<String> getBySiteAndName( String site, String entityName, String limit) throws Throwable {
         LOG.debug("Searching for : " + site + ", Entity Name: " + entityName + " and limit: " + limit);
 
         Filter siteFilter = new DependentColumnFilter(CF1, Q_SOURCE, true, CompareOperator.EQUAL, new RegexStringComparator("^" + prepareRegex(site) + "$"));
@@ -198,6 +254,14 @@ public class AuditSearchProxy extends AuditBaseProxy {
             e.printStackTrace();
         }
         return null;
+    }
+
+    //
+    // Getters (and Setters)
+    //
+
+    protected Logger getLogger(){
+        return(LOG);
     }
 
 }

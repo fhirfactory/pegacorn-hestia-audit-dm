@@ -23,9 +23,6 @@ package net.fhirfactory.pegacorn.hestia.audit.dm.workshops.edge.answer;
 
 import java.util.ArrayList;
 
-import javax.inject.Inject;
-import javax.servlet.annotation.WebServlet;
-
 import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.model.OnExceptionDefinition;
@@ -47,7 +44,10 @@ import net.fhirfactory.pegacorn.workshops.InteractWorkshop;
 import net.fhirfactory.pegacorn.workshops.base.Workshop;
 import net.fhirfactory.pegacorn.wups.archetypes.unmanaged.NonResilientWithAuditTrailWUP;
 
-@WebServlet()
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+@ApplicationScoped
 public class AuditHTTPServer extends NonResilientWithAuditTrailWUP {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuditHTTPServer.class);
@@ -182,40 +182,35 @@ public class AuditHTTPServer extends NonResilientWithAuditTrailWUP {
 
     @Override
     public void configure() throws Exception {
+
         restConfiguration()
-        .component("netty-http")
-        .scheme(getHTTPScheme())
-        .bindingMode(RestBindingMode.json)
-        .dataFormatProperty("prettyPrint", "true")
-        .contextPath(getPegacornReferenceProperties().getAuditDMContextPath())
-        .host(getServerHostName())
-        .port(getServerHostPort());
-        
+            .component("netty-http")
+            .scheme(getHTTPScheme())
+            .bindingMode(RestBindingMode.json)
+            .dataFormatProperty("moduleClassNames", "com.fasterxml.jackson.datatype.jsr310.JavaTimeModule")
+            .dataFormatProperty("disableFeatures", "WRITE_DATES_AS_TIMESTAMPS")
+            .dataFormatProperty("prettyPrint", "true")
+            .contextPath(getPegacornReferenceProperties().getAuditDMContextPath())
+            .host(getServerHostName())
+            .port(getServerHostPort());
+
         rest("/AuditEvent")
-            .get("?agent-name={agentName}")
-                .param().name("agentName").type(RestParamType.query).required(true).endParam()
-                .to("direct:AuditEventSearchByAgentName")
-            .get("?entity-type={entityType}&date={date}")
-                .param().name("entityType").type(RestParamType.query).required(true).endParam()
-                .param().name("date").type(RestParamType.query).required(true).endParam()
-                .to("direct:AuditEventSearchByEntity")
-            .get("?entity-name={entityName}&date={date}&site={site}")
-                .param().name("entityName").type(RestParamType.query).required(true).endParam()
-                .param().name("date").type(RestParamType.query).required(true).endParam()
-                .param().name("site").type(RestParamType.query).required(true).endParam()
-                .to("direct:AuditEventSearchBySite");
+             .get("?agent-name={agentName}&entity-type={entityType}&entity-name={entityName}&date={date}&site={site}&limit={limit}")
+                .param().name("agentName").type(RestParamType.query).required(false).endParam()
+                .param().name("entityType").type(RestParamType.query).required(false).endParam()
+                .param().name("entityName").type(RestParamType.query).required(false).endParam()
+                .param().name("date").type(RestParamType.query).required(false).endParam()
+                .param().name("site").type(RestParamType.query).required(false).endParam()
+                .param().name("limit").type(RestParamType.query).required(false).endParam()
+                .to("direct:AuditEventGeneralSearch");
         
         from("direct:AuditEventSearchByAgentName")
             .log(LoggingLevel.INFO, "GET by agent")
             .bean(auditSearchProxy, "getByUser");
-        from("direct:AuditEventSearchByEntity")
-            .log(LoggingLevel.INFO, "GET by entity")
-            .bean(auditSearchProxy, "getByTypeAndDate");
-        from("direct:AuditEventSearchBySite")
-            .log(LoggingLevel.INFO, "GET by site")
-            .bean(auditSearchProxy, "getBySiteNameAndDate");
-        
-        
+        from("direct:AuditEventGeneralSearch")
+            .log(LoggingLevel.INFO, "General Search")
+            .bean(auditSearchProxy, "doSearch");
+
     }
 
     //
