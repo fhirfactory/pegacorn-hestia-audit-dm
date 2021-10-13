@@ -1,0 +1,10 @@
+
+*.class
+
+target/classes/.netbeans_automatic_build
+
+target/maven-archiver/
+
+*.lst
+
+target/
