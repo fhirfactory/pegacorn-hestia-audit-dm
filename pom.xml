@@ -58,6 +58,14 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>redhat</id>
+            <name>RedHat</name>
+            <url>https://maven.repository.redhat.com/ga/</url>
+         </repository>
+    </repositories>
+
     <!--***********************************************************************************-->
     <!--                                                                                   -->
     <!-- Project Dependency Management                                                     -->
@@ -289,7 +297,7 @@
         <dependency>
             <groupId>com.phloc</groupId>
             <artifactId>phloc-schematron</artifactId>
-            <version>2.7.0</version>
+            <version>${versopm-com.phloc-phlock-schematron}</version>
         </dependency>
 
         <!--*******************************************************************************-->
@@ -319,13 +327,13 @@
         <dependency>
             <groupId>org.apache.hbase</groupId>
             <artifactId>hbase-client</artifactId>
-            <version>2.3.6</version>
+            <version>${version-org.apache.hbase-hbase-client}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.hbase</groupId>
             <artifactId>hbase</artifactId>
-            <version>2.3.6</version>
+            <version>${version-org.apache.hbase-hbase}</version>
             <type>pom</type>
         </dependency>
 
@@ -333,23 +341,24 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-core</artifactId>
-            <version>3.3.0</version>
+            <version>${version-org.apache.hadoop-hadoop-mapreduce-client-core}</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-common -->
-		<dependency>
-		    <groupId>org.apache.hadoop</groupId>
-		    <artifactId>hadoop-common</artifactId>
-		    <version>3.3.0</version>
-		</dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
+            <version>${version-org.apache.hadoop-hadoop-common}</version>
+        </dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-mapreduce-client-jobclient -->
-		<dependency>
-		    <groupId>org.apache.hadoop</groupId>
-		    <artifactId>hadoop-mapreduce-client-jobclient</artifactId>
-		    <version>3.3.0</version>
-		    <scope>provided</scope>
-		</dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-mapreduce-client-jobclient -->
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-mapreduce-client-jobclient</artifactId>
+            <version>${version-org.apache.hadoop-hadoop-mapreduce-client-jobclient}</version>
+            <scope>provided</scope>
+        </dependency>
+
 
         <!--*******************************************************************************-->
         <!-- Logging (SLF4J) Libraries                                                     -->
@@ -366,41 +375,6 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
             <version>${version-ch.qos.logback-classic}</version>
-            <scope>compile</scope>
-        </dependency>
-		
-		
-        <!--*******************************************************************************-->
-        <!-- Pegacorn (Deployment) Libraries                                               -->
-        <!--*******************************************************************************-->
-
-        <dependency>
-            <groupId>net.fhirfactory.pegacorn</groupId>
-            <artifactId>pegacorn-deployment-properties</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>net.fhirfactory.pegacorn</groupId>
-            <artifactId>pegacorn-deployment-model</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>net.fhirfactory.pegacorn</groupId>
-            <artifactId>pegacorn-deployment-datasets</artifactId>
-            <version>${project.version}</version>
-            <type>jar</type>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>net.fhirfactory.pegacorn</groupId>
-            <artifactId>pegacorn-deployment-topology</artifactId>
-            <version>${project.version}</version>
-            <type>jar</type>
             <scope>compile</scope>
         </dependency>
 		
@@ -592,7 +566,7 @@
             <scope>test</scope>
         </dependency>
 		
-	</dependencies>
+    </dependencies>
 
     <!--***********************************************************************************-->
     <!--                                                                                   -->
