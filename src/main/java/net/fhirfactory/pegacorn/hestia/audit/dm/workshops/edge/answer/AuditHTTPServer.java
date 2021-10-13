@@ -213,7 +213,7 @@ public class AuditHTTPServer extends NonResilientWithAuditTrailWUP {
             .bean(auditSearchProxy, "getByTypeAndDate");
         from("direct:AuditEventSearchBySite")
             .log(LoggingLevel.INFO, "GET by site")
-            .bean(auditSearchProxy, "getByNameDateAndSite");
+            .bean(auditSearchProxy, "getBySiteNameAndDate");
         
         
     }
