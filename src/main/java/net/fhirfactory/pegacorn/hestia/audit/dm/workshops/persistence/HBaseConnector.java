@@ -48,7 +48,7 @@ public class HBaseConnector {
             Configuration config = HBaseConfiguration.create();
 
             String zookeeperIP = (System.getenv("ZOOKEEPER_CLUSTER_IP"));
-            config.set("hbase.zookeeper.quorum", zookeeperIP); //"10.98.149.111"
+            config.set("hbase.zookeeper.quorum", zookeeperIP); 
             String zookeeperPort = (System.getenv("ZOOKEEPER_CLUSTER_PORT"));
             config.set("hbase.zookeeper.property.clientPort", zookeeperPort); //"17306"
             //XXX First connection always throws caught error. Fine on 2nd attempt. Inelegant solution.
