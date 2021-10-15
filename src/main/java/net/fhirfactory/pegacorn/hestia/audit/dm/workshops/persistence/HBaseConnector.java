@@ -42,13 +42,15 @@ public class HBaseConnector {
     protected static Connection connection = null;
 
     public Connection getConnection() throws MasterNotRunningException, ZooKeeperConnectionException, IOException {
+        LOG.info("HBaseConnector:getConnection() - Entry");
         if (connection == null) {
             LOG.info("No configuration found. Creating a new one");
             Configuration config = HBaseConfiguration.create();
 
-            String zooKeeperIP = (System.getenv("ZOOKEEPER_CLUSTER_IP"));
-            config.set("hbase.zookeeper.quorum", zooKeeperIP);
-            config.set("hbase.zookeeper.property.clientPort", "2181");
+            String zookeeperIP = (System.getenv("ZOOKEEPER_CLUSTER_IP"));
+            config.set("hbase.zookeeper.quorum", zookeeperIP); //"10.98.149.111"
+            String zookeeperPort = (System.getenv("ZOOKEEPER_CLUSTER_PORT"));
+            config.set("hbase.zookeeper.property.clientPort", zookeeperPort); //"17306"
             //XXX First connection always throws caught error. Fine on 2nd attempt. Inelegant solution.
             try {
                 connection = ConnectionFactory.createConnection(config);
@@ -57,6 +59,7 @@ public class HBaseConnector {
                 connection = ConnectionFactory.createConnection(config);
             }
         }
+        LOG.info("HBaseConnector:getConnection() - Exit");
         return connection;
     }
 
