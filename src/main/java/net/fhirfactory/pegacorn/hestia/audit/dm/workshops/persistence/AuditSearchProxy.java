@@ -253,7 +253,7 @@ public class AuditSearchProxy extends AuditBaseProxy {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return events;
     }
 
     //
