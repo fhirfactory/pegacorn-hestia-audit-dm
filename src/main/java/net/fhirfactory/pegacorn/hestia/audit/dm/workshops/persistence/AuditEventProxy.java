@@ -25,6 +25,7 @@ import java.io.IOException;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import net.fhirfactory.pegacorn.components.transaction.model.TransactionMethodOutcome;
 import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.common.AuditBaseProxy;
 import org.apache.hadoop.hbase.MasterNotRunningException;
 import org.apache.hadoop.hbase.ZooKeeperConnectionException;
@@ -45,6 +46,7 @@ import ca.uhn.fhir.rest.annotation.IdParam;
 import ca.uhn.fhir.rest.annotation.Read;
 import ca.uhn.fhir.rest.annotation.ResourceParam;
 import ca.uhn.fhir.rest.annotation.Update;
+import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 
 @ApplicationScoped
@@ -84,49 +86,50 @@ public class AuditEventProxy extends AuditBaseProxy {
     }
 
     @Create
-    public StoreAuditOutcomeEnum createEvent(@ResourceParam AuditEvent theEvent) {
+    public MethodOutcome createEvent(@ResourceParam AuditEvent theEvent) {
         LOG.debug(".createEvent(): Entry, theEvent (AuditEvent) --> {}", theEvent);
         try {
             return saveToDatabase(theEvent);
         } catch (Exception e) {
             e.printStackTrace();
-            return StoreAuditOutcomeEnum.BAD;
         }
+        return new TransactionMethodOutcome();
     }
 
     @Update
-    public StoreAuditOutcomeEnum updateEvent(@ResourceParam AuditEvent theEvent) {
+    public MethodOutcome updateEvent(@ResourceParam AuditEvent theEvent) {
+        
         LOG.debug(".updateEvent(): Entry, theEvent (AuditEvent) --> {}", theEvent);
         try {
             return saveToDatabase(theEvent);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return StoreAuditOutcomeEnum.BAD;
+        return new TransactionMethodOutcome();
 
     }
 
     @Delete()
-    public StoreAuditOutcomeEnum deleteEvent(@IdParam IdType resourceId) {
+    public MethodOutcome deleteEvent(@IdParam IdType resourceId) {
         LOG.debug(".deleteEvent(): Entry, resourceId (IdType) --> {}", resourceId);
         throw (new UnsupportedOperationException("deleteEvent() is not supported"));
     }
     
 
-    protected StoreAuditOutcomeEnum saveToDatabase(AuditEvent event) {
+    protected MethodOutcome saveToDatabase(AuditEvent event) {
+        TransactionMethodOutcome outcome = new TransactionMethodOutcome();
+        //TODO make outcome reflective of what happens in the transaction
         try {
             Put row = processToPut(event);
             save(row);
+            outcome.setId(event.getIdElement());
         } catch (MasterNotRunningException e) {
             e.printStackTrace();
-            return StoreAuditOutcomeEnum.FAILED;
         } catch (ZooKeeperConnectionException e) {
             e.printStackTrace();
-            return StoreAuditOutcomeEnum.FAILED;
         } catch (IOException e) {
             e.printStackTrace();
-            return StoreAuditOutcomeEnum.BAD;
         }
-        return StoreAuditOutcomeEnum.GOOD;
+        return outcome;
     }
 }
