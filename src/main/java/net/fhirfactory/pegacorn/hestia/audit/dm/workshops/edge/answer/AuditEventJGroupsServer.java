@@ -137,10 +137,8 @@ public class AuditEventJGroupsServer extends RouteBuilder implements CapabilityF
         
         //
         // Write the AuditEvent
-        StoreAuditOutcomeEnum createEventOutcome = getAuditEventProxy().createEvent(auditEvent);
+        MethodOutcome methodOutcome = getAuditEventProxy().createEvent(auditEvent);
         
-        // Kelly, the above response is wrong. You need to respond with a MethodOutcome object.  
-
         String simpleOutcomeAsString = null;
         SimpleTransactionOutcome simpleOutcome = new SimpleTransactionOutcome();
         SimpleResourceID resourceID = new SimpleResourceID();

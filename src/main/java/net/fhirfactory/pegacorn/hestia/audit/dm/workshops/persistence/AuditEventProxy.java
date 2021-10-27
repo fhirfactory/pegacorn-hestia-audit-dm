@@ -25,8 +25,6 @@ import java.io.IOException;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import net.fhirfactory.pegacorn.components.transaction.model.TransactionMethodOutcome;
-import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.common.AuditBaseProxy;
 import org.apache.hadoop.hbase.MasterNotRunningException;
 import org.apache.hadoop.hbase.ZooKeeperConnectionException;
 import org.apache.hadoop.hbase.client.Connection;
@@ -48,11 +46,14 @@ import ca.uhn.fhir.rest.annotation.ResourceParam;
 import ca.uhn.fhir.rest.annotation.Update;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
+import net.fhirfactory.pegacorn.components.transaction.model.TransactionMethodOutcome;
+import net.fhirfactory.pegacorn.components.transaction.valuesets.TransactionTypeEnum;
+import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.common.AuditBaseProxy;
 
 @ApplicationScoped
 public class AuditEventProxy extends AuditBaseProxy {
     private static final Logger LOG = LoggerFactory.getLogger(AuditEventProxy.class);
-
+ 
     /**
      * Constructor
      */
@@ -130,6 +131,14 @@ public class AuditEventProxy extends AuditBaseProxy {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return outcome;
+    }
+    
+    
+    private TransactionMethodOutcome createMethodOutcome(TransactionTypeEnum action) {
+        TransactionMethodOutcome outcome = new TransactionMethodOutcome();
+        outcome.setCausalAction(action);
+
         return outcome;
     }
 }
