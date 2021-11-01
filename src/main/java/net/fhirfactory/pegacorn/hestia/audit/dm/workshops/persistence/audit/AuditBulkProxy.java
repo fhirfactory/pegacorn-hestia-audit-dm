@@ -19,13 +19,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence;
+package net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.audit;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.common.AuditBaseProxy;
 import org.apache.hadoop.hbase.MasterNotRunningException;
 import org.apache.hadoop.hbase.ZooKeeperConnectionException;
 import org.apache.hadoop.hbase.client.Put;
@@ -33,16 +32,19 @@ import org.hl7.fhir.r4.model.AuditEvent;
 
 import ca.uhn.fhir.rest.annotation.Create;
 import ca.uhn.fhir.rest.annotation.ResourceParam;
+import ca.uhn.fhir.rest.api.MethodOutcome;
+import net.fhirfactory.pegacorn.components.transaction.model.TransactionMethodOutcome;
+import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.audit.common.AuditBaseProxy;
 
 public class AuditBulkProxy extends AuditBaseProxy {
 
     @Create
-    public StoreAuditOutcomeEnum createEvent(@ResourceParam List<AuditEvent> theEvents) {
+    public MethodOutcome createEvent(@ResourceParam List<AuditEvent> theEvents) {
         return saveToDatabase(theEvents);
     }
 
-    // TODO KS make asynch and return starting
-    protected StoreAuditOutcomeEnum saveToDatabase(List<AuditEvent> events) {
+    protected MethodOutcome saveToDatabase(List<AuditEvent> events) {
+        TransactionMethodOutcome outcome = new TransactionMethodOutcome();
         try {
             List<Put> rows = new ArrayList<Put>();
             for (AuditEvent event : events) {
@@ -51,16 +53,14 @@ public class AuditBulkProxy extends AuditBaseProxy {
             }
             save(rows);
         } catch (MasterNotRunningException e) {
-            e.printStackTrace();
-            return StoreAuditOutcomeEnum.FAILED;
+            populateBadOutcome(outcome, e.getMessage());
         } catch (ZooKeeperConnectionException e) {
-            e.printStackTrace();
-            return StoreAuditOutcomeEnum.FAILED;
+            populateBadOutcome(outcome, e.getMessage());
         } catch (IOException e) {
-            e.printStackTrace();
-            return StoreAuditOutcomeEnum.BAD;
+            populateBadOutcome(outcome, e.getMessage());
         }
-        return StoreAuditOutcomeEnum.GOOD;
+        outcome.setCreated(false);
+        return outcome;
     }
 
 }

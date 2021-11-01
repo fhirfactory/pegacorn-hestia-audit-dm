@@ -23,6 +23,9 @@ package net.fhirfactory.pegacorn.hestia.audit.dm.workshops.edge.answer;
 
 import java.util.ArrayList;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.model.OnExceptionDefinition;
@@ -36,16 +39,14 @@ import net.fhirfactory.pegacorn.components.transaction.valuesets.exceptions.Reso
 import net.fhirfactory.pegacorn.components.transaction.valuesets.exceptions.ResourceUpdateException;
 import net.fhirfactory.pegacorn.deployment.topology.model.endpoints.base.IPCTopologyEndpoint;
 import net.fhirfactory.pegacorn.deployment.topology.model.endpoints.technologies.HTTPServerClusterServiceTopologyEndpointPort;
-import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.AuditSearchProxy;
 import net.fhirfactory.pegacorn.hestia.audit.dm.common.HestiaAuditDMNames;
+import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.audit.AuditSearchProxy;
+import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.task.TaskSearchProxy;
 import net.fhirfactory.pegacorn.internals.PegacornReferenceProperties;
 import net.fhirfactory.pegacorn.petasos.core.moa.wup.MessageBasedWUPEndpoint;
 import net.fhirfactory.pegacorn.workshops.InteractWorkshop;
 import net.fhirfactory.pegacorn.workshops.base.Workshop;
 import net.fhirfactory.pegacorn.wups.archetypes.unmanaged.NonResilientWithAuditTrailWUP;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 @ApplicationScoped
 public class AuditHTTPServer extends NonResilientWithAuditTrailWUP {
@@ -59,6 +60,9 @@ public class AuditHTTPServer extends NonResilientWithAuditTrailWUP {
 
     @Inject
     private AuditSearchProxy auditSearchProxy;
+    
+    @Inject
+    private TaskSearchProxy taskSearchProxy;
     
     @Inject
     private HestiaAuditDMNames names;
@@ -204,13 +208,27 @@ public class AuditHTTPServer extends NonResilientWithAuditTrailWUP {
                 .param().name("limit").type(RestParamType.query).required(false).endParam()
                 .to("direct:AuditEventGeneralSearch");
         
-        from("direct:AuditEventSearchByAgentName")
-            .log(LoggingLevel.INFO, "GET by agent")
-            .bean(auditSearchProxy, "getByUser");
         from("direct:AuditEventGeneralSearch")
             .log(LoggingLevel.INFO, "General Search")
             .bean(auditSearchProxy, "doSearch");
 
+        
+        //partOf, basedOn, code, status, location, owner, focus
+        rest("/Task")
+             .get("?location={location}&code={code}&part-of={partOf}&based-on={basedOn}&status={status}&owner={owner}&focus={focus}&limit={limit}")
+                .param().name("location").type(RestParamType.query).required(false).endParam()
+                .param().name("code").type(RestParamType.query).required(false).endParam()
+                .param().name("partOf").type(RestParamType.query).required(false).endParam()
+                .param().name("basedOn").type(RestParamType.query).required(false).endParam()
+                .param().name("status").type(RestParamType.query).required(false).endParam()
+                .param().name("owner").type(RestParamType.query).required(false).endParam()
+                .param().name("focus").type(RestParamType.query).required(false).endParam()
+                .param().name("limit").type(RestParamType.query).required(false).endParam()
+                .to("direct:TaskGeneralSearch");
+
+        from("direct:TaskGeneralSearch")
+            .log(LoggingLevel.INFO, "General Search")
+            .bean(taskSearchProxy, "doSearch");
     }
 
     //

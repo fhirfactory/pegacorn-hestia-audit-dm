@@ -24,15 +24,23 @@
 package net.fhirfactory.pegacorn.hestia.audit.dm.workshops.edge.answer;
 
 
-import ca.uhn.fhir.parser.IParser;
-import ca.uhn.fhir.rest.api.MethodOutcome;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
-import java.util.UUID;
+
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
+import org.apache.camel.LoggingLevel;
+import org.apache.camel.builder.RouteBuilder;
+import org.hl7.fhir.r4.model.AuditEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import ca.uhn.fhir.parser.IParser;
+import ca.uhn.fhir.rest.api.MethodOutcome;
 import net.fhirfactory.pegacorn.components.capabilities.CapabilityFulfillmentInterface;
 import net.fhirfactory.pegacorn.components.capabilities.base.CapabilityUtilisationRequest;
 import net.fhirfactory.pegacorn.components.capabilities.base.CapabilityUtilisationResponse;
@@ -41,14 +49,8 @@ import net.fhirfactory.pegacorn.components.transaction.model.SimpleResourceID;
 import net.fhirfactory.pegacorn.components.transaction.model.SimpleTransactionOutcome;
 import net.fhirfactory.pegacorn.components.transaction.valuesets.TransactionStatusEnum;
 import net.fhirfactory.pegacorn.components.transaction.valuesets.TransactionTypeEnum;
-import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.AuditEventProxy;
-import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.StoreAuditOutcomeEnum;
+import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.audit.AuditEventProxy;
 import net.fhirfactory.pegacorn.util.FHIRContextUtility;
-import org.apache.camel.LoggingLevel;
-import org.apache.camel.builder.RouteBuilder;
-import org.hl7.fhir.r4.model.AuditEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *

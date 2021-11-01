@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence;
+package net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.task;
 
 import java.io.IOException;
 
@@ -33,8 +33,8 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.hl7.fhir.r4.model.AuditEvent;
 import org.hl7.fhir.r4.model.IdType;
+import org.hl7.fhir.r4.model.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,22 +47,21 @@ import ca.uhn.fhir.rest.annotation.Update;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 import net.fhirfactory.pegacorn.components.transaction.model.TransactionMethodOutcome;
-import net.fhirfactory.pegacorn.components.transaction.valuesets.TransactionTypeEnum;
-import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.common.AuditBaseProxy;
+import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.task.common.TaskBaseProxy;
 
 @ApplicationScoped
-public class AuditEventProxy extends AuditBaseProxy {
-    private static final Logger LOG = LoggerFactory.getLogger(AuditEventProxy.class);
- 
+public class TaskProxy extends TaskBaseProxy {
+    private static final Logger LOG = LoggerFactory.getLogger(TaskProxy.class);
+
     /**
      * Constructor
      */
-    public AuditEventProxy() {
+    public TaskProxy() {
 
     }
 
     @Read()
-    public AuditEvent read(@IdParam IdType theId) {
+    public Task read(@IdParam IdType theId) {
         try {
             Connection connection = getConnection();
             Table table = connection.getTable(TABLE_NAME);
@@ -75,9 +74,9 @@ public class AuditEventProxy extends AuditBaseProxy {
 
             byte[] data = result.getValue(CF2, Q_BODY);
             String json = Bytes.toString(data);
-            AuditEvent audit = (AuditEvent) parseResourceFromJsonString(json);
+            Task task= (Task) parseResourceFromJsonString(json);
 
-            return audit;
+            return task;
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -87,43 +86,42 @@ public class AuditEventProxy extends AuditBaseProxy {
     }
 
     @Create
-    public MethodOutcome createEvent(@ResourceParam AuditEvent theEvent) {
-        LOG.debug(".createEvent(): Entry, theEvent (AuditEvent) --> {}", theEvent);
+    public MethodOutcome createTask(@ResourceParam Task theTask) {
+        LOG.debug(".createEvent(): Entry, theTask (Task) --> {}", theTask);
         try {
-            return saveToDatabase(theEvent);
+            return saveToDatabase(theTask);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return new TransactionMethodOutcome();
+
     }
 
     @Update
-    public MethodOutcome updateEvent(@ResourceParam AuditEvent theEvent) {
-        
-        LOG.debug(".updateEvent(): Entry, theEvent (AuditEvent) --> {}", theEvent);
+    public MethodOutcome updateTask(@ResourceParam Task theTask) {
+        LOG.debug(".updateEvent(): Entry, theTask (Task) --> {}", theTask);
         try {
-            return saveToDatabase(theEvent);
+            return saveToDatabase(theTask);
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        } 
         return new TransactionMethodOutcome();
-
     }
 
     @Delete()
-    public MethodOutcome deleteEvent(@IdParam IdType resourceId) {
-        LOG.debug(".deleteEvent(): Entry, resourceId (IdType) --> {}", resourceId);
-        throw (new UnsupportedOperationException("deleteEvent() is not supported"));
+    public MethodOutcome deleteTask(@IdParam IdType resourceId) {
+        LOG.debug(".deleteTask(): Entry, resourceId (IdType) --> {}", resourceId);
+        throw (new UnsupportedOperationException("deleteTask() is not supported"));
     }
     
 
-    protected MethodOutcome saveToDatabase(AuditEvent event) {
+    protected MethodOutcome saveToDatabase(Task task) {
         TransactionMethodOutcome outcome = new TransactionMethodOutcome();
         //TODO make outcome reflective of what happens in the transaction
         try {
-            Put row = processToPut(event);
+            Put row = processToPut(task);
             save(row);
-            outcome.setId(event.getIdElement());
+            outcome.setId(task.getIdElement());
         } catch (MasterNotRunningException e) {
             e.printStackTrace();
         } catch (ZooKeeperConnectionException e) {
@@ -131,14 +129,6 @@ public class AuditEventProxy extends AuditBaseProxy {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return outcome;
-    }
-    
-    
-    private TransactionMethodOutcome createMethodOutcome(TransactionTypeEnum action) {
-        TransactionMethodOutcome outcome = new TransactionMethodOutcome();
-        outcome.setCausalAction(action);
-
         return outcome;
     }
 }

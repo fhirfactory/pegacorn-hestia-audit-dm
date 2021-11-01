@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence;
+package net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.audit;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -50,7 +50,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.common.AuditBaseProxy;
+import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.audit.common.AuditBaseProxy;
 
 @ApplicationScoped
 public class AuditSearchProxy extends AuditBaseProxy {

@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.common;
+package net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.audit.common;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -31,7 +31,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.HBaseConnector;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
@@ -54,12 +53,16 @@ import org.hl7.fhir.r4.model.AuditEvent;
 import org.hl7.fhir.r4.model.AuditEvent.AuditEventAgentComponent;
 import org.hl7.fhir.r4.model.AuditEvent.AuditEventEntityComponent;
 import org.hl7.fhir.r4.model.CodeableConcept;
+import org.hl7.fhir.r4.model.Coding;
+import org.hl7.fhir.r4.model.OperationOutcome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.rest.server.IResourceProvider;
+import net.fhirfactory.pegacorn.components.transaction.model.TransactionMethodOutcome;
+import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.HBaseConnector;
 
 public abstract class AuditBaseProxy implements IResourceProvider {
     private static final Logger LOG = LoggerFactory.getLogger(AuditBaseProxy.class);
@@ -247,6 +250,24 @@ public abstract class AuditBaseProxy implements IResourceProvider {
         builder.setColumnFamilies(families);
         TableDescriptor desc = builder.build();
         getConnection().getAdmin().createTable(desc);
+    }
+    
+    //Temporary - taken from DefaultResourceContentAggregationServiceBase   
+    protected void populateBadOutcome(TransactionMethodOutcome outcome, String text) {
+        CodeableConcept details = new CodeableConcept();
+        Coding detailsCoding = new Coding();
+        detailsCoding.setSystem("https://www.hl7.org/fhir/codesystem-operation-outcome.html");
+        detailsCoding.setCode("MSG_PARAM_INVALID");
+        detailsCoding.setDisplay(text);
+        details.setText(text);
+        details.addCoding(detailsCoding);
+        OperationOutcome opOutcome = new OperationOutcome();
+        OperationOutcome.OperationOutcomeIssueComponent newOutcomeComponent = new OperationOutcome.OperationOutcomeIssueComponent();
+        newOutcomeComponent.setDetails(details);
+        newOutcomeComponent.setCode(OperationOutcome.IssueType.INVALID);
+        newOutcomeComponent.setSeverity(OperationOutcome.IssueSeverity.ERROR);
+        opOutcome.addIssue(newOutcomeComponent);
+        outcome.setOperationOutcome(opOutcome);
     }
 
     @Override
