@@ -21,21 +21,13 @@
  */
 package net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.devicemetric.common;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.hbase.MasterNotRunningException;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.ZooKeeperConnectionException;
 import org.apache.hadoop.hbase.client.ColumnFamilyDescriptor;
 import org.apache.hadoop.hbase.client.ColumnFamilyDescriptorBuilder;
 import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Table;
-import org.apache.hadoop.hbase.client.TableDescriptor;
-import org.apache.hadoop.hbase.client.TableDescriptorBuilder;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.DeviceMetric;
@@ -48,7 +40,7 @@ import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.BaseProxy;
 public abstract class DeviceMetricBaseProxy extends BaseProxy implements IResourceProvider {
     private static final Logger LOG = LoggerFactory.getLogger(DeviceMetricBaseProxy.class);
 
-    protected static final String TABLE_NAME = "DEVICE_METRIC";
+    protected static final TableName TABLE_NAME = TableName.valueOf("DEVICE_METRIC");
     protected static final byte[] CF1 = Bytes.toBytes("INFO");
     protected static final byte[] CF2 = Bytes.toBytes("DATA");
     
@@ -61,8 +53,8 @@ public abstract class DeviceMetricBaseProxy extends BaseProxy implements IResour
     protected static final byte[] Q_BODY = Bytes.toBytes("BODY");
     
     @Override
-    protected void initialiseTableName() {
-        setTableName(TableName.valueOf(TABLE_NAME));
+    protected TableName getTableName() {
+        return TABLE_NAME;
     }
 
     protected Put processToPut(DeviceMetric resource) {
@@ -111,15 +103,13 @@ public abstract class DeviceMetricBaseProxy extends BaseProxy implements IResour
         }
     }
 
-
-    protected void createTable() throws IOException {
-        TableDescriptorBuilder builder = TableDescriptorBuilder.newBuilder(tableName);
+    
+    @Override
+    protected Collection<ColumnFamilyDescriptor> getColumnFamilies() {
         Collection<ColumnFamilyDescriptor> families = new ArrayList<ColumnFamilyDescriptor>();
         families.add(ColumnFamilyDescriptorBuilder.of(CF1));
         families.add(ColumnFamilyDescriptorBuilder.of(CF2));
-        builder.setColumnFamilies(families);
-        TableDescriptor desc = builder.build();
-        getConnection().getAdmin().createTable(desc);
+        return families;
     }
 
     @Override

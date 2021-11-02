@@ -58,14 +58,13 @@ public class AuditEventProxy extends AuditBaseProxy {
      * Constructor
      */
     public AuditEventProxy() {
-        initialiseTableName();
     }
 
     @Read()
     public AuditEvent read(@IdParam IdType theId) {
         try {
             Connection connection = getConnection();
-            Table table = connection.getTable(tableName);
+            Table table = connection.getTable(getTableName());
             Get g = new Get(Bytes.toBytes(theId.getIdPart()));
             Result result = table.get(g);
             if (result.isEmpty()) {

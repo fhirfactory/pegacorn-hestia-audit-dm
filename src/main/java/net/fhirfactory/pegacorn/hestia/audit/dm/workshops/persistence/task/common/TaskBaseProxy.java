@@ -21,7 +21,6 @@
  */
 package net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.task.common;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -30,21 +29,18 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.ColumnFamilyDescriptor;
 import org.apache.hadoop.hbase.client.ColumnFamilyDescriptorBuilder;
 import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.TableDescriptor;
-import org.apache.hadoop.hbase.client.TableDescriptorBuilder;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ca.uhn.fhir.rest.server.IResourceProvider;
 import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.BaseProxy;
 
 public abstract class TaskBaseProxy extends BaseProxy {
     private static final Logger LOG = LoggerFactory.getLogger(TaskBaseProxy.class);
 
-    protected static final String TABLE_NAME = "TASK";
+    protected static final TableName TABLE_NAME = TableName.valueOf("TASK");
     protected static final byte[] CF1 = Bytes.toBytes("INFO");
     protected static final byte[] CF2 = Bytes.toBytes("DATA");
     //partOf, basedOn, code, status, location, owner, focus
@@ -59,8 +55,8 @@ public abstract class TaskBaseProxy extends BaseProxy {
     protected static final byte[] Q_BODY = Bytes.toBytes("BODY");
 
     @Override
-    protected void initialiseTableName() {
-        setTableName(TableName.valueOf(TABLE_NAME));
+    protected TableName getTableName() {
+        return TABLE_NAME;
     }
     
     protected Put processToPut(Task resource) {
@@ -132,14 +128,11 @@ public abstract class TaskBaseProxy extends BaseProxy {
     }
 
     @Override
-    protected void createTable() throws IOException {
-        TableDescriptorBuilder builder = TableDescriptorBuilder.newBuilder(tableName);
+    protected Collection<ColumnFamilyDescriptor> getColumnFamilies(){
         Collection<ColumnFamilyDescriptor> families = new ArrayList<ColumnFamilyDescriptor>();
         families.add(ColumnFamilyDescriptorBuilder.of(CF1));
         families.add(ColumnFamilyDescriptorBuilder.of(CF2));
-        builder.setColumnFamilies(families);
-        TableDescriptor desc = builder.build();
-        getConnection().getAdmin().createTable(desc);
+        return families;
     }
 
     @Override

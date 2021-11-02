@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -15,9 +16,12 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.MasterNotRunningException;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.ZooKeeperConnectionException;
+import org.apache.hadoop.hbase.client.ColumnFamilyDescriptor;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.client.TableDescriptor;
+import org.apache.hadoop.hbase.client.TableDescriptorBuilder;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.instance.model.api.IDomainResource;
@@ -30,9 +34,7 @@ import ca.uhn.fhir.rest.server.IResourceProvider;
 
 public abstract class BaseProxy implements IResourceProvider {
     private static final Logger LOG = LoggerFactory.getLogger(BaseProxy.class);
-
-    protected TableName tableName;
-    
+   
     @Inject
     protected HBaseConnector connector;
     
@@ -40,10 +42,6 @@ public abstract class BaseProxy implements IResourceProvider {
 
     protected Connection getConnection() throws MasterNotRunningException, ZooKeeperConnectionException, IOException {
         return connector.getConnection();
-    }
-    
-    protected void setTableName(TableName tableName) {
-        this.tableName = tableName;
     }
 
 //    protected abstract StoreAuditOutcomeEnum saveToDatabase(IDomainResource resouce) throws Exception;
@@ -69,27 +67,41 @@ public abstract class BaseProxy implements IResourceProvider {
     
 
     protected void save(Put row) throws MasterNotRunningException, ZooKeeperConnectionException, IOException {
-        if (!getConnection().getAdmin().tableExists(tableName)) {
+        if (!getConnection().getAdmin().tableExists(getTableName())) {
             createTable();
         }
-        Table table = getConnection().getTable(tableName);
+        Table table = getConnection().getTable(getTableName());
         table.put(row);
         LOG.debug("Save successful. Id: " + Bytes.toString(row.getRow()));
         table.close();
     }
 
     protected void save(List<Put> rows) throws MasterNotRunningException, ZooKeeperConnectionException, IOException {
-        if (!getConnection().getAdmin().tableExists(tableName)) {
+        if (!getConnection().getAdmin().tableExists(getTableName())) {
             createTable();
         }
-        Table table = getConnection().getTable(tableName);
+        Table table = getConnection().getTable(getTableName());
         table.put(rows);
         LOG.debug("Save successful.");
         table.close();
     }
+    protected void createTable() throws IOException {
+        TableDescriptorBuilder builder = TableDescriptorBuilder.newBuilder(getTableName());
+        Collection<ColumnFamilyDescriptor> families = getColumnFamilies();
+        builder.setColumnFamilies(families);
+        TableDescriptor desc = builder.build();
+        getConnection().getAdmin().createTable(desc);
+    }
     
-    protected abstract void initialiseTableName();
-    protected abstract void createTable() throws IOException;
+    /*
+     * TableName needs to be set in each subclass so it can be used by create / save
+     */
+    protected abstract TableName getTableName();
+    /*
+     * column families need to be specified upon table creation. 
+     */
+    protected abstract Collection<ColumnFamilyDescriptor> getColumnFamilies();
+
 
     protected String parseResourceToJsonString(IDomainResource resource) {
         IParser parser = ctx.newJsonParser();
@@ -102,4 +114,5 @@ public abstract class BaseProxy implements IResourceProvider {
         IBaseResource parsedResource = parser.parseResource(json);
         return parsedResource;
     }
+
 }

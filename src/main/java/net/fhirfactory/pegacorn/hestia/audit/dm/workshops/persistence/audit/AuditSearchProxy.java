@@ -187,7 +187,7 @@ public class AuditSearchProxy extends AuditBaseProxy {
         List<String> events = new ArrayList<String>();
 
         try {
-            Table table = getConnection().getTable(tableName);
+            Table table = getConnection().getTable(getTableName());
             Scan scan = new Scan().setFilter(filterList);
             scan.setReversed(reverse);
             scan.setLimit(limit);

@@ -26,7 +26,6 @@ import java.io.IOException;
 import javax.enterprise.context.ApplicationScoped;
 
 import org.apache.hadoop.hbase.MasterNotRunningException;
-import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.ZooKeeperConnectionException;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Get;
@@ -34,8 +33,8 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.hl7.fhir.r4.model.IdType;
 import org.hl7.fhir.r4.model.DeviceMetric;
+import org.hl7.fhir.r4.model.IdType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,14 +57,13 @@ public class DeviceMetricProxy extends DeviceMetricBaseProxy {
      * Constructor
      */
     public DeviceMetricProxy() {
-        initialiseTableName();
     }
 
     @Read()
     public DeviceMetric read(@IdParam IdType theId) {
         try {
             Connection connection = getConnection();
-            Table table = connection.getTable(tableName);
+            Table table = connection.getTable(getTableName());
             Get g = new Get(Bytes.toBytes(theId.getIdPart()));
             Result result = table.get(g);
             if (result.isEmpty()) {

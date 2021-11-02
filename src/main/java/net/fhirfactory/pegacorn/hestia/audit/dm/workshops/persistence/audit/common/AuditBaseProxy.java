@@ -21,34 +21,16 @@
  */
 package net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.audit.common;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-
-import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hbase.MasterNotRunningException;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.ZooKeeperConnectionException;
 import org.apache.hadoop.hbase.client.ColumnFamilyDescriptor;
 import org.apache.hadoop.hbase.client.ColumnFamilyDescriptorBuilder;
-import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Table;
-import org.apache.hadoop.hbase.client.TableDescriptor;
-import org.apache.hadoop.hbase.client.TableDescriptorBuilder;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.hl7.fhir.instance.model.api.IDomainResource;
 import org.hl7.fhir.r4.model.AuditEvent;
 import org.hl7.fhir.r4.model.AuditEvent.AuditEventAgentComponent;
 import org.hl7.fhir.r4.model.AuditEvent.AuditEventEntityComponent;
@@ -58,17 +40,13 @@ import org.hl7.fhir.r4.model.OperationOutcome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.parser.IParser;
-import ca.uhn.fhir.rest.server.IResourceProvider;
 import net.fhirfactory.pegacorn.components.transaction.model.TransactionMethodOutcome;
 import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.BaseProxy;
-import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.HBaseConnector;
 
 public abstract class AuditBaseProxy extends BaseProxy {
     private static final Logger LOG = LoggerFactory.getLogger(AuditBaseProxy.class);
 
-    protected static final String TABLE_NAME = "AUDIT_EVENT";
+    protected static final TableName TABLE_NAME = TableName.valueOf("AUDIT_EVENT");
     protected static final byte[] CF1 = Bytes.toBytes("INFO");
     protected static final byte[] CF2 = Bytes.toBytes("DATA");
     protected static final byte[] Q_AGENT_NAME = Bytes.toBytes("NAME");
@@ -83,8 +61,8 @@ public abstract class AuditBaseProxy extends BaseProxy {
 
    
     @Override
-    protected void initialiseTableName() {
-        setTableName(TableName.valueOf(TABLE_NAME));
+    protected TableName getTableName() {
+        return TABLE_NAME;
     }
 
     protected Put processToPut(AuditEvent resource) {
@@ -183,14 +161,11 @@ public abstract class AuditBaseProxy extends BaseProxy {
     }
 
     @Override
-    protected void createTable() throws IOException {
-        TableDescriptorBuilder builder = TableDescriptorBuilder.newBuilder(tableName);
+    protected Collection<ColumnFamilyDescriptor> getColumnFamilies() {
         Collection<ColumnFamilyDescriptor> families = new ArrayList<ColumnFamilyDescriptor>();
         families.add(ColumnFamilyDescriptorBuilder.of(CF1));
         families.add(ColumnFamilyDescriptorBuilder.of(CF2));
-        builder.setColumnFamilies(families);
-        TableDescriptor desc = builder.build();
-        getConnection().getAdmin().createTable(desc);
+        return families;
     }
     
     //Temporary - taken from DefaultResourceContentAggregationServiceBase   

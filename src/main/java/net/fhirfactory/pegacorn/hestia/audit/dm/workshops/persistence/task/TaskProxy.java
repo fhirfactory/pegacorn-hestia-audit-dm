@@ -26,7 +26,6 @@ import java.io.IOException;
 import javax.enterprise.context.ApplicationScoped;
 
 import org.apache.hadoop.hbase.MasterNotRunningException;
-import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.ZooKeeperConnectionException;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Get;
@@ -58,14 +57,13 @@ public class TaskProxy extends TaskBaseProxy {
      * Constructor
      */
     public TaskProxy() {
-        initialiseTableName();
     }
 
     @Read()
     public Task read(@IdParam IdType theId) {
         try {
             Connection connection = getConnection();
-            Table table = connection.getTable(tableName);
+            Table table = connection.getTable(getTableName());
             Get g = new Get(Bytes.toBytes(theId.getIdPart()));
             Result result = table.get(g);
             if (result.isEmpty()) {

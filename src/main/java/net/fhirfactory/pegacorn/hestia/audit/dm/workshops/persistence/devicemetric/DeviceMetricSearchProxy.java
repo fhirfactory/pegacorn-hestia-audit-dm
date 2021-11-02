@@ -28,18 +28,13 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 
 import org.apache.camel.Header;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.hbase.CompareOperator;
 import org.apache.hadoop.hbase.MasterNotRunningException;
 import org.apache.hadoop.hbase.ZooKeeperConnectionException;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
-import org.apache.hadoop.hbase.filter.DependentColumnFilter;
-import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
-import org.apache.hadoop.hbase.filter.RegexStringComparator;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +46,7 @@ public class DeviceMetricSearchProxy extends DeviceMetricBaseProxy {
     private static final Logger LOG = LoggerFactory.getLogger(DeviceMetricSearchProxy.class);
     
     public DeviceMetricSearchProxy() {
-        initialiseTableName();
+        
     }
 
     //
@@ -95,7 +90,7 @@ public class DeviceMetricSearchProxy extends DeviceMetricBaseProxy {
         List<String> events = new ArrayList<String>();
 
         try {
-            Table table = getConnection().getTable(tableName);
+            Table table = getConnection().getTable(getTableName());
             Scan scan = new Scan().setFilter(filterList);
             scan.setReversed(reverse);
             scan.setLimit(limit);
