@@ -41,6 +41,7 @@ import net.fhirfactory.pegacorn.deployment.topology.model.endpoints.base.IPCTopo
 import net.fhirfactory.pegacorn.deployment.topology.model.endpoints.technologies.HTTPServerClusterServiceTopologyEndpointPort;
 import net.fhirfactory.pegacorn.hestia.audit.dm.common.HestiaAuditDMNames;
 import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.audit.AuditSearchProxy;
+import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.devicemetric.DeviceMetricSearchProxy;
 import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.task.TaskSearchProxy;
 import net.fhirfactory.pegacorn.internals.PegacornReferenceProperties;
 import net.fhirfactory.pegacorn.petasos.core.moa.wup.MessageBasedWUPEndpoint;
@@ -64,6 +65,9 @@ public class AuditHTTPServer extends NonResilientWithAuditTrailWUP {
     @Inject
     private TaskSearchProxy taskSearchProxy;
     
+    @Inject
+    private DeviceMetricSearchProxy deviceMetricSearchProxy;
+       
     @Inject
     private HestiaAuditDMNames names;
     
@@ -229,6 +233,15 @@ public class AuditHTTPServer extends NonResilientWithAuditTrailWUP {
         from("direct:TaskGeneralSearch")
             .log(LoggingLevel.INFO, "General Search")
             .bean(taskSearchProxy, "doSearch");
+        
+        rest("/DeviceMetric")
+        .get("?limit={limit}")
+           .param().name("limit").type(RestParamType.query).required(false).endParam()
+           .to("direct:DeviceMetricGeneralSearch");
+
+   from("direct:DeviceMetricGeneralSearch")
+       .log(LoggingLevel.INFO, "General Search")
+       .bean(deviceMetricSearchProxy, "doSearch");
     }
 
     //

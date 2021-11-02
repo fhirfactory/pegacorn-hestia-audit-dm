@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.task;
+package net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.devicemetric;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,13 +44,13 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.task.common.TaskBaseProxy;
+import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.devicemetric.common.DeviceMetricBaseProxy;
 
 @ApplicationScoped
-public class TaskSearchProxy extends TaskBaseProxy {
-    private static final Logger LOG = LoggerFactory.getLogger(TaskSearchProxy.class);
+public class DeviceMetricSearchProxy extends DeviceMetricBaseProxy {
+    private static final Logger LOG = LoggerFactory.getLogger(DeviceMetricSearchProxy.class);
     
-    public TaskSearchProxy() {
+    public DeviceMetricSearchProxy() {
         initialiseTableName();
     }
 
@@ -58,94 +58,22 @@ public class TaskSearchProxy extends TaskBaseProxy {
     // Business Methods
     //
 
-    public List<String> doSearch( @Header("location") String location, @Header("code") String code, 
-    		@Header("partOf") String partOf, @Header("basedOn") String basedOn, 
-    		@Header("status") String status, @Header("owner") String owner, 
-    		@Header("focus") String focus, @Header("limit") String limit) throws Throwable {
-        getLogger().debug(".doSearch(): Entry");
-        List<String> answerList = new ArrayList<>();
-        FilterList filters = new FilterList();
+    public List<String> doSearch(@Header("limit") String limit) throws Throwable {
+        List<String> answerList = new ArrayList<String>();
         
-
-        boolean locationExists = StringUtils.isNotEmpty(location);
-        boolean codeExists = StringUtils.isNotEmpty(code);
-        boolean partOfExists = StringUtils.isNotEmpty(partOf);
-        boolean basedOnExists = StringUtils.isNotEmpty(basedOn);
-        boolean statusExists = StringUtils.isNotEmpty(status);
-        boolean ownerExists = StringUtils.isNotEmpty(owner);
-        boolean focusExists = StringUtils.isNotEmpty(focus);
-        boolean limitExists = StringUtils.isNotEmpty(limit);
-
+        //TODO implement me 
         
-        if(locationExists) {
-            filters.addFilter(getLocationFilter(location));
-        }
-        if(codeExists) {
-            filters.addFilter(getCodeFilter(code));
-        }
-        if(partOfExists) {
-            filters.addFilter(getPartOfFilter(partOf));
-        }
-        if(basedOnExists) {
-            filters.addFilter(getBasedOnFilter(basedOn));
-        }
-        if(statusExists) {
-            filters.addFilter(getStatusFilter(status));
-        }
-        if(ownerExists) {
-            filters.addFilter(getOwnerFilter(owner));
-        }
-        if(focusExists) {
-            filters.addFilter(getFocusFilter(focus));
-        }
-        //Search requires at least one filter
-        if(filters.size() > 0) {
-            if(limitExists) {
-                try {
-                int lmt = Integer.parseInt(limit);
-                answerList = getResults(filters, lmt, true);
-                }catch (NumberFormatException e) {
-                    LOG.warn(".doSearch(): Invalid limit, number expecteed.");
-                    return(answerList);
-                }
-            } else {
-                answerList = getResults(filters);
-            } 
-        }
-        LOG.debug(".doSearch(): Exit");
-        return(answerList);
+        return(answerList );
     }
     
-
-    public Filter getLocationFilter(String location) {
-        return new DependentColumnFilter(CF1, Q_LOCATION, true, CompareOperator.EQUAL, new RegexStringComparator("^" + prepareRegex(location)));
-    }
-    public Filter getCodeFilter(String code) {
-        return new DependentColumnFilter(CF1, Q_CODE, true, CompareOperator.EQUAL, new RegexStringComparator("^" + prepareRegex(code)));
-    }
-    public Filter getPartOfFilter(String partOf) {
-        return new DependentColumnFilter(CF1, Q_PARTOF, true, CompareOperator.EQUAL, new RegexStringComparator("^" + prepareRegex(partOf)));
-    }
-    public Filter getBasedOnFilter(String basedOn) {
-        return new DependentColumnFilter(CF1, Q_BASEDON, true, CompareOperator.EQUAL, new RegexStringComparator("^" + prepareRegex(basedOn)));
-    }
-    public Filter getStatusFilter(String status) {
-        return new DependentColumnFilter(CF1, Q_STATUS, true, CompareOperator.EQUAL, new RegexStringComparator("^" + prepareRegex(status)));
-    }
-    public Filter getOwnerFilter(String owner) {
-        return new DependentColumnFilter(CF1, Q_OWNER, true, CompareOperator.EQUAL, new RegexStringComparator("^" + prepareRegex(owner)));
-    }
-    public Filter getFocusFilter(String focus) {
-        return new DependentColumnFilter(CF1, Q_FOCUS, true, CompareOperator.EQUAL, new RegexStringComparator("^" + prepareRegex(focus)));
-    }
-
-
+    
+    //TODO KS find a way to make these methods common
     /*
      * Needed because some of the names can have special characters that would be
      * compiled by the regex comparator Currently only handling (). but can be
      * expanded later
      */
-    private String prepareRegex(String string) {
+    protected String prepareRegex(String string) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < string.length(); i++) {
             switch (string.charAt(i)) {
