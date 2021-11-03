@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.devicemetric;
+package net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.device;
 
 import java.io.IOException;
 
@@ -33,7 +33,7 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.hl7.fhir.r4.model.DeviceMetric;
+import org.hl7.fhir.r4.model.Device;
 import org.hl7.fhir.r4.model.IdType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,20 +47,20 @@ import ca.uhn.fhir.rest.annotation.Update;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 import net.fhirfactory.pegacorn.components.transaction.model.TransactionMethodOutcome;
-import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.devicemetric.common.DeviceMetricBaseProxy;
+import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.device.common.DeviceBaseProxy;
 
 @ApplicationScoped
-public class DeviceMetricProxy extends DeviceMetricBaseProxy {
-    private static final Logger LOG = LoggerFactory.getLogger(DeviceMetricProxy.class);
+public class DeviceProxy extends DeviceBaseProxy {
+    private static final Logger LOG = LoggerFactory.getLogger(DeviceProxy.class);
 
     /**
      * Constructor
      */
-    public DeviceMetricProxy() {
+    public DeviceProxy() {
     }
 
     @Read()
-    public DeviceMetric read(@IdParam IdType theId) {
+    public Device read(@IdParam IdType theId) {
         try {
             Connection connection = getConnection();
             Table table = connection.getTable(getTableName());
@@ -73,7 +73,7 @@ public class DeviceMetricProxy extends DeviceMetricBaseProxy {
 
             byte[] data = result.getValue(CF2, Q_BODY);
             String json = Bytes.toString(data);
-            DeviceMetric task= (DeviceMetric) parseResourceFromJsonString(json);
+            Device task= (Device) parseResourceFromJsonString(json);
 
             return task;
         } catch (Exception e) {
@@ -85,10 +85,10 @@ public class DeviceMetricProxy extends DeviceMetricBaseProxy {
     }
 
     @Create
-    public MethodOutcome createDeviceMetric(@ResourceParam DeviceMetric theDeviceMetric) {
-        LOG.debug(".createDeviceMetric(): Entry, theDeviceMetric (DeviceMetric) --> {}", theDeviceMetric);
+    public MethodOutcome createDevice(@ResourceParam Device theDevice) {
+        LOG.debug(".createDevice(): Entry, theDevice (Device) --> {}", theDevice);
         try {
-            return saveToDatabase(theDeviceMetric);
+            return saveToDatabase(theDevice);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -97,10 +97,10 @@ public class DeviceMetricProxy extends DeviceMetricBaseProxy {
     }
 
     @Update
-    public MethodOutcome updateDeviceMetric(@ResourceParam DeviceMetric theDeviceMetric) {
-        LOG.debug(".updateDeviceMetric(): Entry, theDeviceMetric (DeviceMetric) --> {}", theDeviceMetric);
+    public MethodOutcome updateDevice(@ResourceParam Device theDevice) {
+        LOG.debug(".updateDevice(): Entry, theDevice (Device) --> {}", theDevice);
         try {
-            return saveToDatabase(theDeviceMetric);
+            return saveToDatabase(theDevice);
         } catch (Exception e) {
             e.printStackTrace();
         } 
@@ -108,19 +108,19 @@ public class DeviceMetricProxy extends DeviceMetricBaseProxy {
     }
 
     @Delete()
-    public MethodOutcome deleteDeviceMetric(@IdParam IdType resourceId) {
-        LOG.debug(".deleteDeviceMetric(): Entry, resourceId (IdType) --> {}", resourceId);
-        throw (new UnsupportedOperationException("deleteDeviceMetric() is not supported"));
+    public MethodOutcome deleteDevice(@IdParam IdType resourceId) {
+        LOG.debug(".deleteDevice(): Entry, resourceId (IdType) --> {}", resourceId);
+        throw (new UnsupportedOperationException("deleteDevice() is not supported"));
     }
     
 
-    protected MethodOutcome saveToDatabase(DeviceMetric deviceMetric) {
+    protected MethodOutcome saveToDatabase(Device device) {
         TransactionMethodOutcome outcome = new TransactionMethodOutcome();
         //TODO make outcome reflective of what happens in the transaction
         try {
-            Put row = processToPut(deviceMetric);
+            Put row = processToPut(device);
             save(row);
-            outcome.setId(deviceMetric.getIdElement());
+            outcome.setId(device.getIdElement());
         } catch (MasterNotRunningException e) {
             e.printStackTrace();
         } catch (ZooKeeperConnectionException e) {
