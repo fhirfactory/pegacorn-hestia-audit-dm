@@ -41,6 +41,8 @@ import net.fhirfactory.pegacorn.deployment.topology.model.endpoints.base.IPCTopo
 import net.fhirfactory.pegacorn.deployment.topology.model.endpoints.technologies.HTTPServerClusterServiceTopologyEndpointPort;
 import net.fhirfactory.pegacorn.hestia.audit.dm.common.HestiaAuditDMNames;
 import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.audit.AuditSearchProxy;
+import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.capability.CapabilityStatementSearchProxy;
+import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.device.DeviceSearchProxy;
 import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.devicemetric.DeviceMetricSearchProxy;
 import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.task.TaskSearchProxy;
 import net.fhirfactory.pegacorn.internals.PegacornReferenceProperties;
@@ -67,7 +69,12 @@ public class AuditHTTPServer extends NonResilientWithAuditTrailWUP {
     
     @Inject
     private DeviceMetricSearchProxy deviceMetricSearchProxy;
-       
+    
+    @Inject
+    private DeviceSearchProxy deviceSearchProxy;
+    @Inject
+    private CapabilityStatementSearchProxy capabilityStatementSearchProxy;
+              
     @Inject
     private HestiaAuditDMNames names;
     
@@ -233,15 +240,33 @@ public class AuditHTTPServer extends NonResilientWithAuditTrailWUP {
         from("direct:TaskGeneralSearch")
             .log(LoggingLevel.INFO, "General Search")
             .bean(taskSearchProxy, "doSearch");
-        
-        rest("/DeviceMetric")
-        .get("?limit={limit}")
-           .param().name("limit").type(RestParamType.query).required(false).endParam()
-           .to("direct:DeviceMetricGeneralSearch");
 
-   from("direct:DeviceMetricGeneralSearch")
-       .log(LoggingLevel.INFO, "General Search")
-       .bean(deviceMetricSearchProxy, "doSearch");
+        rest("/DeviceMetric")
+            .get("?limit={limit}")
+                .param().name("limit").type(RestParamType.query).required(false).endParam()
+                .to("direct:DeviceMetricGeneralSearch");
+
+        from("direct:DeviceMetricGeneralSearch")
+            .log(LoggingLevel.INFO, "General Search")
+            .bean(deviceMetricSearchProxy, "doSearch");
+        
+        rest("/Device")
+            .get("?limit={limit}")
+                .param().name("limit").type(RestParamType.query).required(false).endParam()
+                .to("direct:DeviceGeneralSearch");
+
+        from("direct:DeviceGeneralSearch")
+            .log(LoggingLevel.INFO, "General Search")
+            .bean(deviceSearchProxy, "doSearch");
+    
+        rest("/CapabilityStatement")
+            .get("?limit={limit}")
+                .param().name("limit").type(RestParamType.query).required(false).endParam()
+                .to("direct:CapabilityStatementGeneralSearch");
+    
+        from("direct:CapabilityStatementGeneralSearch")
+            .log(LoggingLevel.INFO, "General Search")
+            .bean(capabilityStatementSearchProxy, "doSearch");
     }
 
     //

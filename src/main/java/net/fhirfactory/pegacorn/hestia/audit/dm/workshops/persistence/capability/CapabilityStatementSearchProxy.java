@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.device;
+package net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.capability;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,13 +39,13 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.device.common.DeviceBaseProxy;
+import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.devicemetric.common.DeviceMetricBaseProxy;
 
 @ApplicationScoped
-public class DeviceSearchProxy extends DeviceBaseProxy {
-    private static final Logger LOG = LoggerFactory.getLogger(DeviceSearchProxy.class);
+public class CapabilityStatementSearchProxy extends DeviceMetricBaseProxy {
+    private static final Logger LOG = LoggerFactory.getLogger(CapabilityStatementSearchProxy.class);
     
-    public DeviceSearchProxy() {
+    public CapabilityStatementSearchProxy() {
         
     }
 
