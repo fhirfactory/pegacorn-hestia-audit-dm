@@ -39,10 +39,10 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.devicemetric.common.DeviceMetricBaseProxy;
+import net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.capability.common.CapabilityStatementBaseProxy;
 
 @ApplicationScoped
-public class CapabilityStatementSearchProxy extends DeviceMetricBaseProxy {
+public class CapabilityStatementSearchProxy extends CapabilityStatementBaseProxy {
     private static final Logger LOG = LoggerFactory.getLogger(CapabilityStatementSearchProxy.class);
     
     public CapabilityStatementSearchProxy() {
