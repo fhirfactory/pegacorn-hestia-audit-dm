@@ -29,6 +29,7 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.ColumnFamilyDescriptor;
 import org.apache.hadoop.hbase.client.ColumnFamilyDescriptorBuilder;
 import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.AuditEvent;
@@ -166,6 +167,11 @@ public abstract class AuditBaseProxy extends BaseProxy {
         families.add(ColumnFamilyDescriptorBuilder.of(CF1));
         families.add(ColumnFamilyDescriptorBuilder.of(CF2));
         return families;
+    }
+    
+    @Override
+    protected byte[] extractJSONFromResult(Result result) {
+        return result.getValue(CF2, Q_BODY);
     }
     
     //Temporary - taken from DefaultResourceContentAggregationServiceBase   

@@ -21,11 +21,7 @@
  */
 package net.fhirfactory.pegacorn.hestia.audit.dm.workshops.persistence.audit;
 
-import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -34,12 +30,6 @@ import javax.enterprise.context.ApplicationScoped;
 import org.apache.camel.Header;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.CompareOperator;
-import org.apache.hadoop.hbase.MasterNotRunningException;
-import org.apache.hadoop.hbase.ZooKeeperConnectionException;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.ResultScanner;
-import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.filter.BinaryComparator;
 import org.apache.hadoop.hbase.filter.DependentColumnFilter;
 import org.apache.hadoop.hbase.filter.Filter;
@@ -147,83 +137,11 @@ public class AuditSearchProxy extends AuditBaseProxy {
         return new DependentColumnFilter(CF1, Q_SOURCE, true, CompareOperator.EQUAL, new RegexStringComparator("^" + prepareRegex(site) + "$"));
     }
 
-    /*
-     * Needed because some of the names can have special characters that would be
-     * compiled by the regex comparator Currently only handling (). but can be
-     * expanded later
-     */
-    private String prepareRegex(String string) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < string.length(); i++) {
-            switch (string.charAt(i)) {
-            case '(':
-            case ')':
-            case '.':
-                sb.append("\\");
-            }
-            sb.append(string.charAt(i));
-        }
-        return sb.substring(0);
-    }
 
-    Date parseDateString(String dateString) throws ParseException {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
-        return sdf.parse(dateString);
-    }
-
-    Date parseEndRange(String dateString) throws ParseException {
-        Calendar endRange = Calendar.getInstance();
-        endRange.setTime(parseDateString(dateString));
-        LOG.info("Parsed time: " + endRange.toString());
-        endRange.add(Calendar.MINUTE, 1);
-        return endRange.getTime();
-    }
-
-    protected List<String> getResults(FilterList filterList) {
-        return getResults(filterList, -1, false);
-    }        
-    protected List<String> getResults(FilterList filterList, int limit, boolean reverse) {
-
-        List<String> events = new ArrayList<String>();
-
-        try {
-            Table table = getConnection().getTable(getTableName());
-            Scan scan = new Scan().setFilter(filterList);
-            scan.setReversed(reverse);
-            scan.setLimit(limit);
-
-            ResultScanner results = table.getScanner(scan);
-
-            if (results != null) {
-                Result result;
-                result = results.next();
-
-                while (result != null) {
-                    LOG.debug("rowkey=" + Bytes.toString(result.getRow()));
-
-                    String data = Bytes.toString(result.getValue(CF2, Q_BODY));
-                    if (data != null) {
-                        events.add(data);
-                    }
-                    result = results.next();
-                }
-            }
-            results.close();
-            return events;
-        } catch (MasterNotRunningException e) {
-            e.printStackTrace();
-        } catch (ZooKeeperConnectionException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return events;
-    }
 
     //
     // Getters (and Setters)
     //
-
     protected Logger getLogger(){
         return(LOG);
     }
